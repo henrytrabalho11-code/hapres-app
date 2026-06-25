@@ -14,13 +14,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  const nextStep = () => {
-    setStep((prev) => prev + 1);
-  };
-
-  const prevStep = () => {
-    setStep((prev) => (prev > 1 ? prev - 1 : 1));
-  };
+  const nextStep = () => setStep((prev) => prev + 1);
+  const prevStep = () => setStep((prev) => (prev > 1 ? prev - 1 : 1));
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -28,13 +23,9 @@ export default function Home() {
     setMessage({ type: '', text: '' });
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
+      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
-      setMessage({ type: 'success', text: 'Cadastro realizado com sucesso! Verifique seu e-mail.' });
+      setMessage({ type: 'success', text: 'Cadastro realizado! Verifique seu e-mail.' });
     } catch (error) {
       setMessage({ type: 'error', text: error.message || 'Erro ao cadastrar.' });
     } finally {
@@ -49,6 +40,7 @@ export default function Home() {
       boxSizing: 'border-box',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       minHeight: '100vh',
+      width: '100%',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -57,9 +49,8 @@ export default function Home() {
         ? 'linear-gradient(135deg, #0f0c1b 0%, #05020a 100%)' 
         : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
       color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
-      overflow: 'hidden',
-      position: 'relative',
-      transition: 'all 0.5s ease'
+      transition: 'all 0.5s ease',
+      padding: '20px'
     }}>
       {/* Botão de alternar tema */}
       <button 
@@ -77,35 +68,33 @@ export default function Home() {
           color: theme === 'cyber' ? '#00f2fe' : '#4a90e2',
           cursor: 'pointer',
           fontWeight: 'bold',
-          boxShadow: theme === 'cyber' ? '0 0 15px rgba(0, 242, 254, 0.2)' : 'none',
-          transition: 'all 0.3s ease',
           zIndex: 10
         }}
       >
-        {theme === 'cyber' ? '⚡ Tema Cyber-Dark' : '🎨 Tema Creative-Bright'}
+        {theme === 'cyber' ? '⚡ Cyber-Dark' : '🎨 Creative-Bright'}
       </button>
 
-      {/* Container principal Fluido */}
+      {/* Container principal Centralizado e Escalável */}
       <div style={{
-        width: '90%',
-        maxWidth: '450px',
-        padding: '40px 30px',
+        width: '100%',
+        maxWidth: '400px',
+        padding: '30px 24px',
         borderRadius: '24px',
         background: theme === 'cyber' ? 'rgba(20, 16, 38, 0.7)' : 'rgba(255, 255, 255, 0.85)',
         backdropFilter: 'blur(20px)',
         border: theme === 'cyber' ? '1px solid rgba(0, 242, 254, 0.15)' : '1px solid rgba(255, 255, 255, 0.5)',
         boxShadow: theme === 'cyber' 
-          ? '0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255,255,255,0.1)' 
+          ? '0 20px 50px rgba(0, 0, 0, 0.5)' 
           : '0 20px 50px rgba(0, 0, 0, 0.05)',
         textAlign: 'center',
-        position: 'relative'
+        boxSizing: 'border-box'
       }}>
         
         {/* PASSO 1 */}
         {step === 1 && (
           <div>
             <h1 style={{ 
-              fontSize: '2rem', 
+              fontSize: '1.8rem', 
               fontWeight: '800', 
               marginBottom: '15px',
               background: theme === 'cyber' ? 'linear-gradient(45deg, #00f2fe, #4facfe)' : 'linear-gradient(45deg, #4a90e2, #50e3c2)',
@@ -114,7 +103,7 @@ export default function Home() {
             }}>
               HAPRES SOVEREIGN
             </h1>
-            <p style={{ opacity: 0.8, lineHeight: '1.6', marginBottom: '35px', fontSize: '1.05rem' }}>
+            <p style={{ opacity: 0.8, lineHeight: '1.5', marginBottom: '30px', fontSize: '1rem' }}>
               A Fábrica de Software Autônoma. Você não escreve código; você dá ordens.
             </p>
             <button type="button" onClick={nextStep} style={buttonStyle(theme)}>PRÓXIMO</button>
@@ -124,13 +113,13 @@ export default function Home() {
         {/* PASSO 2 */}
         {step === 2 && (
           <div>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '15px', color: theme === 'cyber' ? '#00f2fe' : '#4a90e2' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: '700', marginBottom: '15px', color: theme === 'cyber' ? '#00f2fe' : '#4a90e2' }}>
               MÓDULOS VIVOS
             </h2>
-            <p style={{ opacity: 0.8, lineHeight: '1.6', marginBottom: '35px', fontSize: '1.05rem' }}>
+            <p style={{ opacity: 0.8, lineHeight: '1.5', marginBottom: '30px', fontSize: '1rem' }}>
               Arraste Pix, sistemas de futebol, dízimos e muito mais com um clique.
             </p>
-            <div style={{ display: 'flex', gap: '15px' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
               <button type="button" onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
               <button type="button" onClick={nextStep} style={buttonStyle(theme)}>PRÓXIMO</button>
             </div>
@@ -140,13 +129,13 @@ export default function Home() {
         {/* PASSO 3 */}
         {step === 3 && (
           <div>
-            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '15px', color: theme === 'cyber' ? '#00f2fe' : '#4a90e2' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: '700', marginBottom: '15px', color: theme === 'cyber' ? '#00f2fe' : '#4a90e2' }}>
               ENCICLOPÉDIA DE UM BILHÃO
             </h2>
-            <p style={{ opacity: 0.8, lineHeight: '1.6', marginBottom: '35px', fontSize: '1.05rem' }}>
+            <p style={{ opacity: 0.8, lineHeight: '1.5', marginBottom: '30px', fontSize: '1rem' }}>
               Qualquer leigo tem a capacidade de criar o aplicativo mais complexo do mundo.
             </p>
-            <div style={{ display: 'flex', gap: '15px' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
               <button type="button" onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
               <button type="button" onClick={nextStep} style={buttonStyle(theme)}>ENTRAR NO HUD</button>
             </div>
@@ -156,13 +145,13 @@ export default function Home() {
         {/* PASSO 4 */}
         {step === 4 && (
           <div>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: '700', marginBottom: '25px', color: theme === 'cyber' ? '#ff007f' : '#ff4081' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '20px', color: theme === 'cyber' ? '#ff007f' : '#ff4081' }}>
               REGISTRO DE INGRESSO
             </h2>
             
-            <form onSubmit={handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'left' }}>
+            <form onSubmit={handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '15px', textAlign: 'left' }}>
               <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: '600', opacity: 0.8, display: 'block', marginBottom: '8px' }}>E-mail:</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', opacity: 0.8, display: 'block', marginBottom: '6px' }}>E-mail:</label>
                 <input 
                   type="email" 
                   required 
@@ -173,7 +162,7 @@ export default function Home() {
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.85rem', fontWeight: '600', opacity: 0.8, display: 'block', marginBottom: '8px' }}>Senha:</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: '600', opacity: 0.8, display: 'block', marginBottom: '6px' }}>Senha:</label>
                 <input 
                   type="password" 
                   required 
@@ -186,9 +175,9 @@ export default function Home() {
 
               {message.text && (
                 <div style={{
-                  padding: '12px',
+                  padding: '10px',
                   borderRadius: '10px',
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   backgroundColor: message.type === 'success' ? 'rgba(74, 222, 128, 0.15)' : 'rgba(248, 113, 113, 0.15)',
                   color: message.type === 'success' ? '#4ade80' : '#f87171',
                   border: message.type === 'success' ? '1px solid rgba(74, 222, 128, 0.3)' : '1px solid rgba(248, 113, 113, 0.3)',
@@ -198,60 +187,7 @@ export default function Home() {
                 </div>
               )}
 
-              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '5px' }}>
                 <button type="button" onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
-                <button type="submit" disabled={loading} style={buttonStyle(theme)}>
-                  {loading ? 'CADASTRANDO...' : 'CADASTRAR'}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+                <button type="submit" disabled={
 
-      </div>
-    </div>
-  );
-}
-
-function buttonStyle(theme) {
-  return {
-    flex: 1,
-    padding: '15px',
-    borderRadius: '14px',
-    border: 'none',
-    background: theme === 'cyber' ? 'linear-gradient(45deg, #00f2fe, #4facfe)' : 'linear-gradient(45deg, #4a90e2, #50e3c2)',
-    color: '#ffffff',
-    fontWeight: '700',
-    fontSize: '1rem',
-    cursor: 'pointer',
-    boxShadow: theme === 'cyber' ? '0 8px 25px rgba(0, 242, 254, 0.3)' : '0 8px 25px rgba(74, 144, 226, 0.3)',
-    transition: 'transform 0.2s ease'
-  };
-}
-
-function secondaryButtonStyle(theme) {
-  return {
-    padding: '15px 25px',
-    borderRadius: '14px',
-    border: theme === 'cyber' ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.15)',
-    background: 'transparent',
-    color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
-    fontWeight: '600',
-    fontSize: '1rem',
-    cursor: 'pointer'
-  };
-}
-
-function inputStyle(theme) {
-  return {
-    width: '100%',
-    padding: '14px',
-    borderRadius: '12px',
-    border: theme === 'cyber' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-    background: theme === 'cyber' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)',
-    color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
-    fontSize: '1rem',
-    outline: 'none',
-    boxSizing: 'border-box'
-  };
-}
