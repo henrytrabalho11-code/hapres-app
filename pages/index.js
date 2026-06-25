@@ -189,5 +189,57 @@ export default function Home() {
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '5px' }}>
                 <button type="button" onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
-                <button type="submit" disabled={
+                <button type="submit" disabled={loading} style={buttonStyle(theme)}>
+                  {loading ? 'AGUARDE...' : 'CADASTRAR'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
 
+      </div>
+    </div>
+  );
+}
+
+function buttonStyle(theme) {
+  return {
+    flex: 1,
+    padding: '12px 20px',
+    borderRadius: '12px',
+    border: 'none',
+    background: theme === 'cyber' ? 'linear-gradient(45deg, #00f2fe, #4facfe)' : 'linear-gradient(45deg, #4a90e2, #50e3c2)',
+    color: '#ffffff',
+    fontWeight: '700',
+    fontSize: '0.95rem',
+    cursor: 'pointer',
+    transition: 'transform 0.2s ease'
+  };
+}
+
+function secondaryButtonStyle(theme) {
+  return {
+    padding: '12px 20px',
+    borderRadius: '12px',
+    border: theme === 'cyber' ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.15)',
+    background: 'transparent',
+    color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
+    fontWeight: '600',
+    fontSize: '0.95rem',
+    cursor: 'pointer'
+  };
+}
+
+function inputStyle(theme) {
+  return {
+    width: '100%',
+    padding: '12px',
+    borderRadius: '10px',
+    border: theme === 'cyber' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
+    background: theme === 'cyber' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)',
+    color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
+    fontSize: '0.95rem',
+    outline: 'none',
+    boxSizing: 'border-box'
+  };
+}
