@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// Inicialização segura do Supabase usando as chaves que guardámos no seu .env
-const supabaseUrl = process-env-NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process-env-NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Correção efetuada: utilizando o ponto correto para as variáveis de ambiente
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function HapresApp() {
@@ -50,7 +50,6 @@ export default function HapresApp() {
       alert("Erro: " + result.error.message);
     } else if (result.data?.user) {
       setUser(result.data.user);
-      // Validação de e-mails administradores conforme o manual do leigo
       if (email === 'henryserpa11@gmail.com' || email === 'henrytrabalho11@gmail.com') {
         setIsAdmin(true);
       }
@@ -65,7 +64,6 @@ export default function HapresApp() {
     setAiChat(newChat);
     setAiMessage('');
 
-    // Resposta simulada mantendo o comportamento inteligente exigido
     setTimeout(() => {
       setAiChat([...newChat, { 
         role: 'assistant', 
@@ -110,13 +108,11 @@ export default function HapresApp() {
       {/* 3. DASHBOARD CENTRAL (HUD) */}
       {currentStep === 'dashboard' && (
         <div>
-          {/* Top Bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #00ffcc', paddingBottom: '15px', marginBottom: '20px' }}>
             <h2>HAPRES CENTRAL COMMAND {isAdmin && <span style={{ color: '#ff007f' }}>(MODO ADM ACTIVE)</span>}</h2>
             <button onClick={() => setCurrentStep('auth')} style={{ background: '#ff007f', color: '#fff', border: 'none', padding: '5px 15px', cursor: 'pointer' }}>LOGOUT</button>
           </div>
 
-          {/* Main Workspace Layout */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '20px' }}>
             
             {/* Esquerda: Módulos OMNI-API */}
@@ -164,3 +160,4 @@ export default function HapresApp() {
     </div>
   );
 }
+
