@@ -1,173 +1,273 @@
 import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { themes } from '../styles/themes';
+import { createClient } from '@supabase/supabase-client';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+// Inicializa o Supabase com as variáveis que você configurou na Vercel
+const supabaseUrl = process-env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process-env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-export default function HapresApp() {
-  // Estados do App
-  const [currentTheme, setCurrentTheme] = useState(themes.cyberDark);
-  const [currentStep, setCurrentStep] = useState('onboarding'); // onboarding, auth, dashboard
-  const [onboardingIndex, setOnboardingIndex] = useState(0);
+export default function Home() {
+  const [step, setStep] = useState(1);
+  const [direction, setDirection] = useState('next');
+  const [theme, setTheme] = useState('cyber'); // 'cyber' ou 'creative'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [user, setUser] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [aiMessage, setAiMessage] = useState('');
-  const [aiChat, setAiChat] = useState([
-    { role: 'assistant', text: 'Olá! Sou o Assistente IA do Hapres. Como posso ajudar na sua Fábrica de Magia hoje?' }
-  ]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
-  const onboardingSteps = [
-    { title: "HAPRES SOVEREIGN", desc: "A Fábrica de Software Autônoma. Você não escreve código; você dá ordens." },
-    { title: "MÓDULOS VIVOS", desc: "Arraste Pix, sistemas de futebol, dízimos e muito mais com um clique." },
-    { title: "ENCICLOPÉDIA DE UM BILHÃO", desc: "Qualquer leigo tem a capacidade de criar o aplicativo mais complexo do mundo." }
-  ];
-
-  const nextOnboarding = () => {
-    if (onboardingIndex < onboardingSteps.length - 1) {
-      setOnboardingIndex(onboardingIndex + 1);
-    } else {
-      setCurrentStep('auth');
-    }
+  const nextStep = () => {
+    setDirection('next');
+    setStep((prev) => prev + 1);
   };
 
-  const toggleTheme = () => {
-    if (currentTheme.id === 'cyber') {
-      setCurrentTheme(themes.brightCreative);
-    } else {
-      setCurrentTheme(themes.cyberDark);
-    }
+  const prevStep = () => {
+    setDirection('prev');
+    setStep((prev) => (prev > 1 ? prev - 1 : 1));
   };
 
-  const handleAuth = async (type) => {
-    if (!email || !password) return alert("Preencha todos os campos!");
-    let result;
-    if (type === 'signup') {
-      result = await supabase.auth.signUp({ email, password });
-    } else {
-      result = await supabase.auth.signInWithPassword({ email, password });
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+      setMessage({ type: 'success', text: 'Cadastro realizado com sucesso! Verifique seu e-mail.' });
+    } catch (error) {
+      setMessage({ type: 'error', text: error.message || 'Erro ao cadastrar.' });
+    } finally {
+      setLoading(false);
     }
-
-    if (result.error) {
-      alert("Erro: " + result.error.message);
-    } else if (result.data?.user) {
-      setUser(result.data.user);
-      if (email === 'henryserpa11@gmail.com' || email === 'henrytrabalho11@gmail.com') {
-        setIsAdmin(true);
-      }
-      setCurrentStep('dashboard');
-    }
-  };
-
-  const sendAiMessage = () => {
-    if (!aiMessage) return;
-    const newChat = [...aiChat, { role: 'user', text: aiMessage }];
-    setAiChat(newChat);
-    setAiMessage('');
-
-    setTimeout(() => {
-      setAiChat([...newChat, { 
-        role: 'assistant', 
-        text: `Comando recebido no centro de controle HUD! Aplicando parâmetros no tema atual.` 
-      }]);
-    }, 1000);
   };
 
   return (
-    <div style={{ backgroundColor: currentTheme.background, color: currentTheme.primary, minHeight: '100vh', fontFamily: 'monospace', padding: '20px', transition: 'all 0.3s ease' }}>
-      
-      {/* BOTÃO GLOBAL DE ALTERNAR TEMA (HUD CONTROLLER) */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
-        <button onClick={toggleTheme} style={{ background: currentTheme.surface, color: currentTheme.secondary, border: currentTheme.border, padding: '8px 16px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '4px', boxShadow: currentTheme.shadow }}>
-          🔄 INTERMUTAR: {currentTheme.name}
-        </button>
+    <div style={{
+      margin: 0,
+      padding: 0,
+      boxSizing: 'border-box',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: theme === 'cyber' 
+        ? 'linear-gradient(135deg, #0f0c1b 0%, #05020a 100%)' 
+        : 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
+      overflow: 'hidden',
+      position: 'relative',
+      transition: 'all 0.5s ease'
+    }}>
+      {/* Botão de alternar tema moderno */}
+      <button 
+        onClick={() => setTheme(theme === 'cyber' ? 'creative' : 'cyber')}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          padding: '10px 20px',
+          borderRadius: '30px',
+          border: theme === 'cyber' ? '1px solid #00f2fe' : '1px solid #4a90e2',
+          background: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(10px)',
+          color: theme === 'cyber' ? '#00f2fe' : '#4a90e2',
+          cursor: 'pointer',
+          fontWeight: 'bold',
+          boxShadow: theme === 'cyber' ? '0 0 15px rgba(0, 242, 254, 0.2)' : 'none',
+          transition: 'all 0.3s ease'
+        }}
+      >
+        {theme === 'cyber' ? '⚡ Tema Cyber-Dark' : '🎨 Tema Creative-Bright'}
+      </button>
+
+      {/* Container principal Fluido e Responsivo */}
+      <div style={{
+        width: '90%',
+        maxWidth: '450px',
+        padding: '40px 30px',
+        borderRadius: '24px',
+        background: theme === 'cyber' ? 'rgba(20, 16, 38, 0.7)' : 'rgba(255, 255, 255, 0.85)',
+        backdropFilter: 'blur(20px)',
+        border: theme === 'cyber' ? '1px solid rgba(0, 242, 254, 0.15)' : '1px solid rgba(255, 255, 255, 0.5)',
+        boxShadow: theme === 'cyber' 
+          ? '0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255,255,255,0.1)' 
+          : '0 20px 50px rgba(0, 0, 0, 0.05)',
+        textAlign: 'center',
+        position: 'relative',
+        animation: 'fadeIn 0.6s ease-out'
+      }}>
+        
+        {/* PASSO 1: Boas-vindas */}
+        {step === 1 && (
+          <div style={{ animation: 'slideIn 0.4s ease-out' }}>
+            <h1 style={{ 
+              fontSize: '2rem', 
+              fontWeight: '800', 
+              marginBottom: '15px',
+              background: theme === 'cyber' ? 'linear-gradient(45deg, #00f2fe, #4facfe)' : 'linear-gradient(45deg, #4a90e2, #50e3c2)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}>
+              HAPRES SOVEREIGN
+            </h1>
+            <p style={{ opacity: 0.8, lineHeight: '1.6', marginBottom: '35px', fontSize: '1.05rem' }}>
+              A Fábrica de Software Autônoma. Você não escreve código; você dá ordens.
+            </p>
+            <button onClick={nextStep} style={buttonStyle(theme)}>PRÓXIMO</button>
+          </div>
+        )}
+
+        {/* PASSO 2: Módulos */}
+        {step === 2 && (
+          <div style={{ animation: 'slideIn 0.4s ease-out' }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '15px', color: theme === 'cyber' ? '#00f2fe' : '#4a90e2' }}>
+              MÓDULOS VIVOS
+            </h2>
+            <p style={{ opacity: 0.8, lineHeight: '1.6', marginBottom: '35px', fontSize: '1.05rem' }}>
+              Arraste Pix, sistemas de futebol, dízimos e muito mais com um clique.
+            </p>
+            <div style={{ display: 'flex', gap: '15px' }}>
+              <button onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
+              <button onClick={nextStep} style={buttonStyle(theme)}>PRÓXIMO</button>
+            </div>
+          </div>
+        )}
+
+        {/* PASSO 3: Enciclopédia */}
+        {step === 3 && (
+          <div style={{ animation: 'slideIn 0.4s ease-out' }}>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '15px', color: theme === 'cyber' ? '#00f2fe' : '#4a90e2' }}>
+              ENCICLOPÉDIA DE UM BILHÃO
+            </h2>
+            <p style={{ opacity: 0.8, lineHeight: '1.6', marginBottom: '35px', fontSize: '1.05rem' }}>
+              Qualquer leigo tem a capacidade de criar o aplicativo mais complexo do mundo.
+            </p>
+            <div style={{ display: 'flex', gap: '15px' }}>
+              <button onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
+              <button onClick={nextStep} style={buttonStyle(theme)}>ENTRAR NO HUD</button>
+            </div>
+          </div>
+        )}
+
+        {/* PASSO 4: Cadastro Real */}
+        {step === 4 && (
+          <div style={{ animation: 'slideIn 0.4s ease-out' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: '700', marginBottom: '25px', color: theme === 'cyber' ? '#ff007f' : '#ff4081' }}>
+              REGISTRO DE INGRESSO
+            </h2>
+            
+            <form onSubmit={handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px', textAlign: 'left' }}>
+              <div>
+                <label style={{ fontSize: '0.85rem', fontWeight: '600', opacity: 0.8, display: 'block', marginBottom: '8px' }}>E-mail:</label>
+                <input 
+                  type="email" 
+                  required 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={inputStyle(theme)}
+                  placeholder="seu@email.com"
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.85rem', fontWeight: '600', opacity: 0.8, display: 'block', marginBottom: '8px' }}>Senha:</label>
+                <input 
+                  type="password" 
+                  required 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={inputStyle(theme)}
+                  placeholder="••••••••"
+                />
+              </div>
+
+              {message.text && (
+                <div style={{
+                  padding: '12px',
+                  borderRadius: '10px',
+                  fontSize: '0.9rem',
+                  backgroundColor: message.type === 'success' ? 'rgba(74, 222, 128, 0.15)' : 'rgba(248, 113, 113, 0.15)',
+                  color: message.type === 'success' ? '#4ade80' : '#f87171',
+                  border: message.type === 'success' ? '1px solid rgba(74, 222, 128, 0.3)' : '1px solid rgba(248, 113, 113, 0.3)',
+                  textAlign: 'center'
+                }}>
+                  {message.text}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
+                <button type="button" onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
+                <button type="submit" disabled={loading} style={buttonStyle(theme)}>
+                  {loading ? 'CADASTRANDO...' : 'CADASTRAR'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
       </div>
 
-      {/* 1. TELA DE ONBOARDING */}
-      {currentStep === 'onboarding' && (
-        <div style={{ maxWidth: '500px', margin: '100px auto', textAlign: 'center', border: currentTheme.border, background: currentTheme.surface, padding: '40px', borderRadius: '12px', boxShadow: currentTheme.shadow }}>
-          <h1 style={{ color: currentTheme.secondary, letterSpacing: '2px' }}>{onboardingSteps[onboardingIndex].title}</h1>
-          <p style={{ color: currentTheme.text, fontSize: '16px', lineHeight: '1.6', margin: '30px 0' }}>{onboardingSteps[onboardingIndex].desc}</p>
-          <button onClick={nextOnboarding} style={{ background: 'transparent', border: currentTheme.border, color: currentTheme.primary, padding: '12px 30px', cursor: 'pointer', fontWeight: 'bold', borderRadius: '4px' }}>
-            {onboardingIndex === onboardingSteps.length - 1 ? "ENTRAR NO HUD" : "PRÓXIMO"}
-          </button>
-        </div>
-      )}
-
-      {/* 2. TELA DE AUTENTICAÇÃO */}
-      {currentStep === 'auth' && (
-        <div style={{ maxWidth: '400px', margin: '100px auto', border: currentTheme.border, background: currentTheme.surface, padding: '30px', borderRadius: '8px', boxShadow: currentTheme.shadow }}>
-          <h2 style={{ textAlign: 'center', color: currentTheme.secondary }}>REGISTRO DE INGRESSO</h2>
-          <div style={{ margin: '20px 0' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: currentTheme.text }}>E-mail:</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: '100%', padding: '10px', background: currentTheme.background, border: currentTheme.border, color: currentTheme.text }} />
-          </div>
-          <div style={{ margin: '20px 0' }}>
-            <label style={{ display: 'block', marginBottom: '5px', color: currentTheme.text }}>Senha:</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: '100%', padding: '10px', background: currentTheme.background, border: currentTheme.border, color: currentTheme.text }} />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
-            <button onClick={() => handleAuth('login')} style={{ background: currentTheme.primary, color: currentTheme.background, padding: '10px 20px', border: 'none', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px' }}>ENTRAR</button>
-            <button onClick={() => handleAuth('signup')} style={{ background: 'transparent', color: currentTheme.secondary, padding: '10px 20px', border: currentTheme.border, fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px' }}>CADASTRAR</button>
-          </div>
-        </div>
-      )}
-
-      {/* 3. DASHBOARD CENTRAL (HUD) */}
-      {currentStep === 'dashboard' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: currentTheme.border, paddingBottom: '15px', marginBottom: '20px' }}>
-            <h2 style={{ color: currentTheme.text }}>HAPRES CENTRAL COMMAND {isAdmin && <span style={{ color: currentTheme.secondary }}>(MODO ADM ACTIVE)</span>}</h2>
-            <button onClick={() => setCurrentStep('auth')} style={{ background: currentTheme.secondary, color: '#fff', border: 'none', padding: '5px 15px', cursor: 'pointer', borderRadius: '4px' }}>LOGOUT</button>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '20px' }}>
-            
-            {/* Esquerda: Módulos OMNI-API */}
-            <div style={{ border: currentTheme.border, background: currentTheme.surface, padding: '15px', borderRadius: '6px', boxShadow: currentTheme.shadow }}>
-              <h3 style={{ color: currentTheme.primary }}>ARSENAIS OMNI</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '15px' }}>
-                <div style={{ padding: '10px', background: currentTheme.background, borderLeft: `4px solid ${currentTheme.secondary}`, color: currentTheme.text }}>⛪ Módulo Vaticano & Louvor</div>
-                <div style={{ padding: '10px', background: currentTheme.background, borderLeft: `4px solid ${currentTheme.secondary}`, color: currentTheme.text }}>⚽ Módulo SofaScore Pro</div>
-                <div style={{ padding: '10px', background: currentTheme.background, borderLeft: `4px solid ${currentTheme.secondary}`, color: currentTheme.text }}>💳 Sistema Pix Financeiro</div>
-                <div style={{ padding: '10px', background: currentTheme.background, borderLeft: `4px solid ${currentTheme.secondary}`, color: currentTheme.text }}>📈 Bolsa & Cripto Mercado</div>
-              </div>
-            </div>
-
-            {/* Centro: Canvas HUD do App */}
-            <div style={{ border: currentTheme.border, padding: '15px', borderRadius: '6px', textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'center', background: currentTheme.surface, boxShadow: currentTheme.shadow }}>
-              <p style={{ color: currentTheme.textMuted }}>[ CANVAS HUB INTERATIVO ]</p>
-              <h1 style={{ color: currentTheme.text }}>O SEU APLICATIVO APARECE AQUI</h1>
-              <p style={{ color: currentTheme.primary }}>Altere cores, adicione blocos vivos e construa em tempo real.</p>
-              <button style={{ margin: '20px auto', background: currentTheme.secondary, color: '#fff', border: 'none', padding: '12px 35px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', borderRadius: '4px', boxShadow: currentTheme.shadow }}>
-                PUBLIKAR APLICATIVO (PWA)
-              </button>
-            </div>
-
-            {/* Direita: Assistente Holograma IA */}
-            <div style={{ border: currentTheme.border, background: currentTheme.surface, padding: '15px', borderRadius: '6px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: currentTheme.shadow }}>
-              <div>
-                <h3 style={{ color: currentTheme.primary }}>ASSISTENTE IA OMNI</h3>
-                <div style={{ height: '300px', overflowY: 'auto', marginTop: '15px', padding: '10px', background: currentTheme.background, borderRadius: '4px' }}>
-                  {aiChat.map((msg, index) => (
-                    <p key={index} style={{ color: msg.role === 'assistant' ? currentTheme.primary : currentTheme.text, fontSize: '13px' }}>
-                      <strong>{msg.role === 'assistant' ? 'IA:' : 'Você:'}</strong> {msg.text}
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <div style={{ display: 'flex', marginTop: '10px' }}>
-                <input type="text" value={aiMessage} onChange={(e) => setAiMessage(e.target.value)} placeholder="Pergunte como ligar o Pix..." style={{ flexGrow: 1, padding: '8px', background: currentTheme.background, border: currentTheme.border, color: currentTheme.text }} />
-                <button onClick={sendAiMessage} style={{ background: currentTheme.secondary, color: '#fff', border: 'none', padding: '0 15px', cursor: 'pointer', borderRadius: '0 4px 4px 0' }}>SEND</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      )}
+      {/* Estilos CSS Injetados para animações de deslize modernas */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
     </div>
   );
+}
+
+// Estilos dinâmicos auxiliares
+function buttonStyle(theme) {
+  return {
+    flex: 1,
+    padding: '15px',
+    borderRadius: '14px',
+    border: 'none',
+    background: theme === 'cyber' ? 'linear-gradient(45deg, #00f2fe, #4facfe)' : 'linear-gradient(45deg, #4a90e2, #50e3c2)',
+    color: '#ffffff',
+    fontWeight: '700',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    boxShadow: theme === 'cyber' ? '0 8px 25px rgba(0, 242, 254, 0.3)' : '0 8px 25px rgba(74, 144, 226, 0.3)',
+    transition: 'transform 0.2s ease, opacity 0.2s ease'
+  };
+}
+
+function secondaryButtonStyle(theme) {
+  return {
+    padding: '15px 25px',
+    borderRadius: '14px',
+    border: theme === 'cyber' ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(0,0,0,0.15)',
+    background: 'transparent',
+    color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
+    fontWeight: '600',
+    fontSize: '1rem',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  };
+}
+
+function inputStyle(theme) {
+  return {
+    width: '100%',
+    padding: '14px',
+    borderRadius: '12px',
+    border: theme === 'cyber' ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
+    background: theme === 'cyber' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.02)',
+    color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
+    fontSize: '1rem',
+    outline: 'none',
+    boxSizing: 'border-box'
+  };
 }
