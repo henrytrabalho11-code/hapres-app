@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-client';
 
-// Inicializa o Supabase com as variáveis que você configurou na Vercel
-const supabaseUrl = process-env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process-env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Inicializa o Supabase com as variáveis corretas
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function Home() {
   const [step, setStep] = useState(1);
-  const [direction, setDirection] = useState('next');
   const [theme, setTheme] = useState('cyber'); // 'cyber' ou 'creative'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,12 +15,10 @@ export default function Home() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   const nextStep = () => {
-    setDirection('next');
     setStep((prev) => prev + 1);
   };
 
   const prevStep = () => {
-    setDirection('prev');
     setStep((prev) => (prev > 1 ? prev - 1 : 1));
   };
 
@@ -64,7 +61,7 @@ export default function Home() {
       position: 'relative',
       transition: 'all 0.5s ease'
     }}>
-      {/* Botão de alternar tema moderno */}
+      {/* Botão de alternar tema */}
       <button 
         onClick={() => setTheme(theme === 'cyber' ? 'creative' : 'cyber')}
         style={{
@@ -86,7 +83,7 @@ export default function Home() {
         {theme === 'cyber' ? '⚡ Tema Cyber-Dark' : '🎨 Tema Creative-Bright'}
       </button>
 
-      {/* Container principal Fluido e Responsivo */}
+      {/* Container principal Fluido */}
       <div style={{
         width: '90%',
         maxWidth: '450px',
@@ -99,13 +96,12 @@ export default function Home() {
           ? '0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255,255,255,0.1)' 
           : '0 20px 50px rgba(0, 0, 0, 0.05)',
         textAlign: 'center',
-        position: 'relative',
-        animation: 'fadeIn 0.6s ease-out'
+        position: 'relative'
       }}>
         
-        {/* PASSO 1: Boas-vindas */}
+        {/* PASSO 1 */}
         {step === 1 && (
-          <div style={{ animation: 'slideIn 0.4s ease-out' }}>
+          <div>
             <h1 style={{ 
               fontSize: '2rem', 
               fontWeight: '800', 
@@ -123,9 +119,9 @@ export default function Home() {
           </div>
         )}
 
-        {/* PASSO 2: Módulos */}
+        {/* PASSO 2 */}
         {step === 2 && (
-          <div style={{ animation: 'slideIn 0.4s ease-out' }}>
+          <div>
             <h2 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '15px', color: theme === 'cyber' ? '#00f2fe' : '#4a90e2' }}>
               MÓDULOS VIVOS
             </h2>
@@ -139,9 +135,9 @@ export default function Home() {
           </div>
         )}
 
-        {/* PASSO 3: Enciclopédia */}
+        {/* PASSO 3 */}
         {step === 3 && (
-          <div style={{ animation: 'slideIn 0.4s ease-out' }}>
+          <div>
             <h2 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '15px', color: theme === 'cyber' ? '#00f2fe' : '#4a90e2' }}>
               ENCICLOPÉDIA DE UM BILHÃO
             </h2>
@@ -155,9 +151,9 @@ export default function Home() {
           </div>
         )}
 
-        {/* PASSO 4: Cadastro Real */}
+        {/* PASSO 4 */}
         {step === 4 && (
-          <div style={{ animation: 'slideIn 0.4s ease-out' }}>
+          <div>
             <h2 style={{ fontSize: '1.6rem', fontWeight: '700', marginBottom: '25px', color: theme === 'cyber' ? '#ff007f' : '#ff4081' }}>
               REGISTRO DE INGRESSO
             </h2>
@@ -211,23 +207,10 @@ export default function Home() {
         )}
 
       </div>
-
-      {/* Estilos CSS Injetados para animações de deslize modernas */}
-      <style jsx global>{`
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(30px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </div>
   );
 }
 
-// Estilos dinâmicos auxiliares
 function buttonStyle(theme) {
   return {
     flex: 1,
@@ -240,7 +223,7 @@ function buttonStyle(theme) {
     fontSize: '1rem',
     cursor: 'pointer',
     boxShadow: theme === 'cyber' ? '0 8px 25px rgba(0, 242, 254, 0.3)' : '0 8px 25px rgba(74, 144, 226, 0.3)',
-    transition: 'transform 0.2s ease, opacity 0.2s ease'
+    transition: 'transform 0.2s ease'
   };
 }
 
@@ -253,8 +236,7 @@ function secondaryButtonStyle(theme) {
     color: theme === 'cyber' ? '#ffffff' : '#1a1a1a',
     fontWeight: '600',
     fontSize: '1rem',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
+    cursor: 'pointer'
   };
 }
 
