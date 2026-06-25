@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-client';
+import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
 // Inicializa o Supabase com as variáveis corretas
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -63,6 +63,7 @@ export default function Home() {
     }}>
       {/* Botão de alternar tema */}
       <button 
+        type="button"
         onClick={() => setTheme(theme === 'cyber' ? 'creative' : 'cyber')}
         style={{
           position: 'absolute',
@@ -77,7 +78,8 @@ export default function Home() {
           cursor: 'pointer',
           fontWeight: 'bold',
           boxShadow: theme === 'cyber' ? '0 0 15px rgba(0, 242, 254, 0.2)' : 'none',
-          transition: 'all 0.3s ease'
+          transition: 'all 0.3s ease',
+          zIndex: 10
         }}
       >
         {theme === 'cyber' ? '⚡ Tema Cyber-Dark' : '🎨 Tema Creative-Bright'}
@@ -115,7 +117,7 @@ export default function Home() {
             <p style={{ opacity: 0.8, lineHeight: '1.6', marginBottom: '35px', fontSize: '1.05rem' }}>
               A Fábrica de Software Autônoma. Você não escreve código; você dá ordens.
             </p>
-            <button onClick={nextStep} style={buttonStyle(theme)}>PRÓXIMO</button>
+            <button type="button" onClick={nextStep} style={buttonStyle(theme)}>PRÓXIMO</button>
           </div>
         )}
 
@@ -129,8 +131,8 @@ export default function Home() {
               Arraste Pix, sistemas de futebol, dízimos e muito mais com um clique.
             </p>
             <div style={{ display: 'flex', gap: '15px' }}>
-              <button onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
-              <button onClick={nextStep} style={buttonStyle(theme)}>PRÓXIMO</button>
+              <button type="button" onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
+              <button type="button" onClick={nextStep} style={buttonStyle(theme)}>PRÓXIMO</button>
             </div>
           </div>
         )}
@@ -145,8 +147,8 @@ export default function Home() {
               Qualquer leigo tem a capacidade de criar o aplicativo mais complexo do mundo.
             </p>
             <div style={{ display: 'flex', gap: '15px' }}>
-              <button onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
-              <button onClick={nextStep} style={buttonStyle(theme)}>ENTRAR NO HUD</button>
+              <button type="button" onClick={prevStep} style={secondaryButtonStyle(theme)}>VOLTAR</button>
+              <button type="button" onClick={nextStep} style={buttonStyle(theme)}>ENTRAR NO HUD</button>
             </div>
           </div>
         )}
