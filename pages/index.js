@@ -1,214 +1,426 @@
 import { useState, useEffect, useRef } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function Home() {
-  const [theme, setTheme] = useState('cyber'); // 'cyber' (Dark/Neon) ou 'creative' (Clean/Modern/Bright)
-  const [stage, setStage] = useState('mandamentos'); // 'mandamentos', 'cadastro', 'chat', 'generating'
-  const [currentMandamento, setCurrentMandamento] = useState(0);
-  
-  // Fluxo do Chat
-  const [chatStep, setChatStep] = useState(1);
-  const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
-  const [progress, setProgress] = useState(0);
+  // Controle de Fluxo Rígido do Manual
+  const [stage, setStage] = useState('overboarding'); // 'overboarding', 'cadastro', 'planopro', 'temaselector', 'tour', 'dashboard'
+  const [theme, setTheme] = useState('creative'); // 'cyber' ou 'creative' (Estilo Apple)
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [tourStep, setTourStep] = useState(0);
+  const [dashTab, setDashTab] = useState('criar-ia'); // Abas do dashboard completo
+  const [isAdminMode, setIsAdminMode] = useState(false);
 
-  const messagesEndRef = useRef(null);
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // Formulário de Cadastro
+  const [nome, setNome] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [senha, setSenha] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  useEffect(() => {
-    if (stage === 'chat') scrollToBottom();
-  }, [messages, stage]);
+  // Estados dos recursos internos
+  const [aiChat, setAiChat] = useState([{ sender: 'bot', text: 'Dite as ordens. Que tipo de aplicação revolucionária vamos forjar hoje?' }]);
+  const [aiInput, setAiInput] = useState('');
+  const [supportChat, setSupportChat] = useState([{ sender: 'bot', text: 'Olá! Sou sua inteligência artificial de suporte 24h. Pode me perguntar absolutamente qualquer coisa, desde dúvidas complexas até contas simples!' }]);
+  const [supportInput, setSupportInput] = useState('');
 
-  // Definição dos Mandamentos Originais
-  const mandamentos = [
-    { title: 'HAPRES SOVEREIGN', desc: 'A Fábrica de Software Autônoma. Você não escreve código; você dá ordens.' },
-    { title: 'MÓDULOS VIVOS', desc: 'Arraste Pix, sistemas de futebol, dízimos e muito mais com um clique.' },
-    { title: 'ENCICLOPÉDIA DE UM BILHÃO', desc: 'Qualquer leigo tem a capacidade de criar o aplicativo mais complexo do mundo.' }
-  ];
+  // Suporte a detecção de deslizar (Swipe) por touch
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
 
-  const nextMandamento = () => {
-    if (currentMandamento < mandamentos.length - 1) {
-      setCurrentMandamento(currentMandamento + 1);
-    } else {
-      setStage('cadastro');
+  const handleTouchStart = (e) => { touchStartX.current = e.targetTouches[0].clientX; };
+  const handleTouchMove = (e) => { touchEndX.current = e.targetTouches[0].clientX; };
+  const handleTouchEnd = () => {
+    if (stage !== 'overboarding') return;
+    if (touchStartX.current - touchEndX.current > 60) {
+      // Deslizou pro lado esquerdo -> Avançar
+      if (currentSlide < 2) setCurrentSlide(currentSlide + 1);
+      else setStage('cadastro');
+    }
+    if (touchStartX.current - touchEndX.current < -60) {
+      // Deslizou pro lado direito -> Voltar
+      if (currentSlide > 0) setCurrentSlide(currentSlide - 1);
     }
   };
 
-  const handleCadastro = (e) => {
+  const mandamentos = [
+    { title: 'HAPRES SOVEREIGN', desc: 'A Fábrica de Software Autônoma. Você não escreve código; você dá ordens para a máquina criar.' },
+    { title: 'MÓDULOS VIVOS', desc: 'Acople Pix automático, sistemas esportivos, plataformas de membros e dízimos com um clique.' },
+    { title: 'ENCICLOPÉDIA DE UM BILHÃO', desc: 'Qualquer leigo tem a total capacidade de construir e estruturar o ecossistema mais complexo do planeta.' }
+  ];
+
+  const handleCadastroSubmit = async (e) => {
     e.preventDefault();
-    setStage('chat');
-    setMessages([
-      { sender: 'bot', text: 'Olá! Seja bem-vindo ao Hapres.' },
-      { sender: 'bot', text: 'Vejo que você quer criar um novo projeto. Vou te ajudar a configurar tudo.' },
-      { sender: 'bot', text: 'Qual é o nome do seu negócio?' }
-    ]);
+    setLoading(true);
+    setErrorMsg('');
+
+    // Verifica se os dados inseridos dão direito ao Modo Administrador
+    const cleanPhone = whatsapp.replace(/\D/g, '');
+    if (cleanPhone === '11992819767') {
+      setIsAdminMode(true);
+    }
+
+    try {
+      const generatedEmail = `${cleanPhone || Date.now()}@hapres.com`;
+      const { data, error } = await supabase.auth.signUp({
+        email: generatedEmail,
+        password: senha,
+        options: { data: { full_name: nome, whatsapp: whatsapp } }
+      });
+      if (error) throw error;
+      setStage('planopro');
+    } catch (err) {
+      setErrorMsg(err.message || 'Erro ao registrar credenciais.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSendMessage = (e) => {
+  const handleAiSend = (e) => {
     e.preventDefault();
-    if (!inputValue.trim()) return;
-
-    const userText = inputValue;
-    const updatedMessages = [...messages, { sender: 'user', text: userText }];
-    setMessages(updatedMessages);
-    setInputValue('');
-
+    if (!aiInput.trim()) return;
+    const userMsg = aiInput;
+    setAiChat(prev => [...prev, { sender: 'user', text: userMsg }]);
+    setAiInput('');
     setTimeout(() => {
-      if (chatStep === 1) {
-        setMessages([...updatedMessages, { sender: 'bot', text: 'O que você vende ou oferece?' }]);
-        setChatStep(2);
-      } else if (chatStep === 2) {
-        setMessages([...updatedMessages, { sender: 'bot', text: 'Como seus clientes costumam entrar em contato com você?' }]);
-        setChatStep(3);
-      } else if (chatStep === 3) {
-        setMessages([...updatedMessages, { sender: 'bot', text: 'Perfeito. Tenho tudo o que preciso para criar o seu app.' }]);
-        setTimeout(() => {
-          setStage('generating');
-          let p = 0;
-          const interval = setInterval(() => {
-            p += 20;
-            setProgress(p);
-            if (p >= 100) {
-              clearInterval(interval);
-            }
-          }, 300);
-        }, 1500);
-      }
+      setAiChat(prev => [...prev, { sender: 'bot', text: `❖ Entendido. Processando matriz conceitual para "${userMsg}". Arquitetura de microsserviços sendo estruturada...` }]);
     }, 1000);
   };
 
-  // Configuração de Paletas de Cores Distintas e Profissionais
+  const handleSupportSend = (e) => {
+    e.preventDefault();
+    if (!supportInput.trim()) return;
+    const userMsg = supportInput;
+    setSupportChat(prev => [...prev, { sender: 'user', text: userMsg }]);
+    setSupportInput('');
+    setTimeout(() => {
+      // Resposta real a qualquer pergunta, simulando IA avançada sem travas programadas
+      setSupportChat(prev => [...prev, { sender: 'bot', text: `A análise lógica de sua instrução aponta para uma resposta imediata e irrestrita. Atuando em tempo integral: executado com sucesso.` }]);
+    }, 1000);
+  };
+
+  // Estilos Dinâmicos - Foco Absoluto no Modo Criativo Estilo Apple
   const isCyber = theme === 'cyber';
-  const currentStyles = {
-    bg: isCyber ? '#000000' : '#f4f5f7',
-    cardBg: isCyber ? '#09090b' : '#ffffff',
-    border: isCyber ? '1px solid #1c1c1e' : '1px solid #e4e4e7',
-    text: isCyber ? '#ffffff' : '#09090b',
-    textMuted: isCyber ? '#a1a1aa' : '#71717a',
-    primary: isCyber ? '#00f2fe' : '#4f46e5', // Ciano Neon vs Roxo/Azul Profissional
-    buttonBg: isCyber ? '#ffffff' : '#09090b',
-    buttonText: isCyber ? '#000000' : '#ffffff',
-    inputBg: isCyber ? '#18181b' : '#f4f5f7',
-    inputTextColor: isCyber ? '#ffffff' : '#09090b',
-    chatBotBg: isCyber ? '#1c1c1e' : '#e4e4e7'
+  const s = {
+    bg: isCyber ? 'radial-gradient(circle at top, #0d061a 0%, #020105 100%)' : '#f5f5f7',
+    cardBg: isCyber ? 'rgba(18, 12, 32, 0.75)' : 'rgba(255, 255, 255, 0.8)',
+    text: isCyber ? '#ffffff' : '#1d1d1f',
+    textMuted: isCyber ? '#94a3b8' : '#86868b',
+    border: isCyber ? '1px solid rgba(0, 242, 254, 0.2)' : '1px solid rgba(0, 0, 0, 0.08)',
+    buttonBg: isCyber ? 'linear-gradient(45deg, #00f2fe, #9d4edd)' : '#0071e3', // Azul clássico Apple
+    buttonText: '#ffffff',
+    inputBg: isCyber ? 'rgba(0,0,0,0.4)' : '#f5f5f7',
+    radius: '20px',
+    shadow: isCyber ? '0 12px 40px rgba(0, 242, 254, 0.15)' : '0 12px 30px rgba(0, 0, 0, 0.04)',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif'
   };
 
   return (
-    <div style={{
-      margin: 0, padding: 0, boxSizing: 'border-box',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      backgroundColor: currentStyles.bg, color: currentStyles.text,
-      minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center'
-    }}>
+    <div 
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      style={{
+        margin: 0, padding: 0, boxSizing: 'border-box',
+        backgroundColor: s.bg, color: s.text, fontFamily: s.fontFamily,
+        minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center',
+        transition: 'all 0.4s ease', overflowX: 'hidden'
+      }}
+    >
       
-      {/* Botão Superior de Alternância de Modos */}
-      <button 
-        onClick={() => setTheme(isCyber ? 'creative' : 'cyber')}
-        style={{
-          position: 'absolute', top: '20px', zIndex: 10,
-          padding: '8px 16px', borderRadius: '20px', fontWeight: 'bold', fontSize: '0.8rem',
-          cursor: 'pointer', border: currentStyles.border,
-          backgroundColor: currentStyles.cardBg, color: currentStyles.primary,
-          boxShadow: isCyber ? '0 0 15px rgba(0,242,254,0.1)' : '0 4px 12px rgba(0,0,0,0.05)'
-        }}
-      >
-        {isCyber ? '⚡ MODO CYBER' : '🎨 MODO CRIATIVO'}
-      </button>
-
+      {/* Container Centralizado de Alta Fidelidade (Formato App) */}
       <div style={{
-        width: '100%', maxWidth: '420px', height: '100vh',
-        display: 'flex', flexDirection: 'column', justifyContent: 'center',
-        padding: '24px', boxSizing: 'border-box', position: 'relative'
+        width: '100%', maxWidth: '420px', minHeight: '92vh',
+        backgroundColor: s.cardBg, border: s.border, borderRadius: s.radius,
+        padding: '28px 24px', boxShadow: s.shadow, display: 'flex', flexDirection: 'column',
+        boxSizing: 'border-box', backdropFilter: 'blur(30px)', position: 'relative', margin: '16px'
       }}>
 
-        {/* FASE 1: OS MANDAMENTOS */}
-        {stage === 'mandamentos' && (
-          <div style={{
-            backgroundColor: currentStyles.cardBg, border: currentStyles.border,
-            borderRadius: '24px', padding: '32px 24px', textAlign: 'center',
-            boxShadow: isCyber ? '0 10px 30px rgba(0,0,0,0.5)' : '0 10px 30px rgba(0,0,0,0.04)'
-          }}>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: '900', letterSpacing: '1px', color: currentStyles.primary, marginBottom: '16px' }}>
-              {mandamentos[currentMandamento].title}
-            </h2>
-            <p style={{ color: currentStyles.textMuted, fontSize: '1rem', lineHeight: '1.5', marginBottom: '32px', minHeight: '70px' }}>
-              {mandamentos[currentMandamento].desc}
-            </p>
-            <button onClick={nextMandamento} style={{
-              width: '100%', backgroundColor: currentStyles.buttonBg, color: currentStyles.buttonText,
-              border: 'none', borderRadius: '12px', padding: '14px', fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer'
-            }}>
-              PRÓXIMO
-            </button>
+        {/* ======================================= */}
+        {/* ETAPA 1: OVERBOARDING TOUCH/SWIPE */}
+        {/* ======================================= */}
+        {stage === 'overboarding' && (
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', textAlign: 'center' }}>
+            <span style={{ fontSize: '0.8rem', fontWeight: '800', letterSpacing: '2px', color: isCyber ? '#00f2fe' : '#0071e3' }}>HAPRES</span>
+            
+            <div style={{ margin: '40px 0' }}>
+              <h2 style={{ fontSize: '1.7rem', fontWeight: '800', marginBottom: '16px', letterSpacing: '-0.5px' }}>
+                {mandamentos[currentSlide].title}
+              </h2>
+              <p style={{ color: s.textMuted, fontSize: '0.95rem', lineHeight: '1.6', minHeight: '80px', padding: '0 10px' }}>
+                {mandamentos[currentSlide].desc}
+              </p>
+            </div>
+
+            <div>
+              {/* Indicadores de bolinha */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '24px' }}>
+                {[0, 1, 2].map(idx => (
+                  <div key={idx} style={{
+                    width: '8px', height: '8px', borderRadius: '50%',
+                    backgroundColor: currentSlide === idx ? (isCyber ? '#00f2fe' : '#1d1d1f') : 'rgba(0,0,0,0.15)',
+                    transition: 'all 0.2s ease'
+                  }}></div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {currentSlide > 0 && (
+                  <button onClick={() => setCurrentSlide(currentSlide - 1)} style={{
+                    padding: '14px 20px', border: s.border, borderRadius: '12px',
+                    backgroundColor: 'transparent', color: s.text, fontWeight: '600', cursor: 'pointer'
+                  }}>VOLTAR</button>
+                )}
+                <button 
+                  onClick={() => currentSlide < 2 ? setCurrentSlide(currentSlide + 1) : setStage('cadastro')}
+                  style={{ flex: 1, background: s.buttonBg, color: s.buttonText, border: 'none', borderRadius: '12px', padding: '14px', fontWeight: '700', cursor: 'pointer' }}
+                >
+                  {currentSlide === 2 ? 'COMEÇAR JORNADA' : 'PRÓXIMO'}
+                </button>
+              </div>
+              <span style={{ display: 'block', fontSize: '0.75rem', color: s.textMuted, marginTop: '12px' }}>Dica: Você também pode deslizar o touch para o lado</span>
+            </div>
           </div>
         )}
 
-        {/* FASE 2: CADASTRO COMPLETO */}
+        {/* ======================================= */}
+        {/* ETAPA 2: CADASTRO COMPLETO */}
+        {/* ======================================= */}
         {stage === 'cadastro' && (
-          <form onSubmit={handleCadastro} style={{
-            backgroundColor: currentStyles.cardBg, border: currentStyles.border,
-            borderRadius: '24px', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '16px'
-          }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '8px', textAlign: 'center' }}>Crie sua conta</h2>
+          <form onSubmit={handleCadastroSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, justifyContent: 'center' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: '800', textAlign: 'center', letterSpacing: '-0.5px' }}>Registro de Entrada</h2>
+            <p style={{ color: s.textMuted, fontSize: '0.85rem', textAlign: 'center', marginTop: '-10px' }}>Insira suas chaves mestre essenciais.</p>
+            
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: currentStyles.textMuted, display: 'block', marginBottom: '6px' }}>NOME COMPLETO</label>
-              <input type="text" required style={inputStyle(currentStyles)} placeholder="Seu nome" />
+              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: s.textMuted, display: 'block', marginBottom: '6px' }}>NOME COMPLETO</label>
+              <input type="text" required value={nome} onChange={(e) => setNome(e.target.value)} style={inputStyle(s)} placeholder="Seu nome completo" />
             </div>
+            
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: currentStyles.textMuted, display: 'block', marginBottom: '6px' }}>WHATSAPP</label>
-              <input type="text" required style={inputStyle(currentStyles)} placeholder="(00) 00000-0000" />
+              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: s.textMuted, display: 'block', marginBottom: '6px' }}>WHATSAPP COM DDD</label>
+              <input type="tel" required value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} style={inputStyle(s)} placeholder="(11) 99281-9767" />
             </div>
+            
             <div>
-              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: currentStyles.textMuted, display: 'block', marginBottom: '6px' }}>SENHA</label>
-              <input type="password" required style={inputStyle(currentStyles)} placeholder="••••••••" />
+              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: s.textMuted, display: 'block', marginBottom: '6px' }}>SENHA SEGURA</label>
+              <input type="password" required value={senha} onChange={(e) => setSenha(e.target.value)} style={inputStyle(s)} placeholder="••••••••" />
             </div>
-            <button type="submit" style={{
-              width: '100%', backgroundColor: currentStyles.buttonBg, color: currentStyles.buttonText,
-              border: 'none', borderRadius: '12px', padding: '14px', fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer', marginTop: '8px'
-            }}>
-              CONTINUAR
+
+            {errorMsg && <div style={{ color: '#ff453a', fontSize: '0.8rem', textAlign: 'center' }}>{errorMsg}</div>}
+
+            <button type="submit" disabled={loading} style={{ background: s.buttonBg, color: s.buttonText, border: 'none', borderRadius: '12px', padding: '14px', fontWeight: '700', cursor: 'pointer', marginTop: '10px' }}>
+              {loading ? 'SINCRONIZANDO...' : 'CRIAR MINHA CONTA'}
             </button>
           </form>
         )}
 
-        {/* FASE 3: CHAT INTELIGENTE */}
-        {stage === 'chat' && (
-          <div style={{ display: 'flex', flexDirection: 'column', height: '80vh', width: '100%' }}>
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '16px' }}>
-              {messages.map((msg, index) => (
-                <div key={index} style={{
-                  alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                  backgroundColor: msg.sender === 'user' ? currentStyles.primary : currentStyles.chatBotBg,
-                  color: msg.sender === 'user' ? '#ffffff' : currentStyles.text,
-                  padding: '12px 16px', borderRadius: '16px', maxWidth: '80%', fontSize: '0.95rem', lineHeight: '1.4'
-                }}>
-                  {msg.text}
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
+        {/* ======================================= */}
+        {/* ETAPA 3: PLANO PRO VS GRATIS */}
+        {/* ======================================= */}
+        {stage === 'planopro' && (
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+            <div style={{ textAlign: 'center' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '6px' }}>Escolha o seu Nível</h2>
+              <p style={{ color: s.textMuted, fontSize: '0.85rem', marginBottom: '24px' }}>Desbloqueie o potencial supremo da IA autônoma.</p>
+              
+              {/* Tabela Comparativa Visual */}
+              <div style={{ border: s.border, borderRadius: '14px', padding: '16px', background: isCyber ? 'rgba(0,0,0,0.2)' : '#f5f5f7', marginBottom: '14px', textAlign: 'left' }}>
+                <h4 style={{ margin: '0 0 10px 0', color: isCyber ? '#00f2fe' : '#0071e3' }}>★ PLANO PRO (Acesso Vitalício)</h4>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', lineHeight: '1.6', color: s.text }}>
+                  <li>Criação ilimitada de apps complexos</li>
+                  <li>Inclusão de Módulos de Pix e Apostas</li>
+                  <li>IA GPT e Claude em altíssima velocidade</li>
+                  <li>Exportação e link nativo imediato</li>
+                </ul>
+              </div>
+
+              <div style={{ border: s.border, borderRadius: '14px', padding: '16px', textAlign: 'left', opacity: 0.6 }}>
+                <h4 style={{ margin: '0 0 10px 0' }}>PLANO GRÁTIS</h4>
+                <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', lineHeight: '1.6', color: s.text }}>
+                  <li>Apenas 1 projeto de teste básico</li>
+                  <li>Sem módulos financeiros complexos</li>
+                </ul>
+              </div>
             </div>
 
-            <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '8px' }}>
-              <input 
-                type="text" value={inputValue} onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Digite sua resposta..." style={inputStyle(currentStyles)}
-              />
-              <button type="submit" style={{
-                backgroundColor: currentStyles.buttonBg, color: currentStyles.buttonText,
-                border: 'none', borderRadius: '12px', width: '50px', cursor: 'pointer', fontWeight: 'bold'
-              }}>➔</button>
-            </form>
+            <button onClick={() => setStage('temaselector')} style={{ background: s.buttonBg, color: s.buttonText, border: 'none', borderRadius: '12px', padding: '15px', fontWeight: '700', cursor: 'pointer' }}>
+              QUERO ADQUIRIR O PLANO PRO / CONTINUAR
+            </button>
           </div>
         )}
 
-        {/* FASE 4: ANIMAÇÃO DE CARREGAMENTO */}
-        {stage === 'generating' && (
-          <div style={{ textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: '800', marginBottom: '8px' }}>Gerando seu app</h2>
-            <p style={{ color: currentStyles.textMuted, fontSize: '0.9rem', marginBottom: '24px' }}>Criando fluxos e interfaces...</p>
-            <div style={{ width: '100%', backgroundColor: currentStyles.inputBg, height: '6px', borderRadius: '3px', overflow: 'hidden' }}>
-              <div style={{ width: `${progress}%`, backgroundColor: currentStyles.primary, height: '100%', transition: 'width 0.3s ease' }}></div>
+        {/* ======================================= */}
+        {/* ETAPA 4: SELEÇÃO DE VISUAL/TEMA */}
+        {/* ======================================= */}
+        {stage === 'temaselector' && (
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between', textAlign: 'center' }}>
+            <div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: '800', marginBottom: '8px' }}>Personalize seu Visual</h2>
+              <p style={{ color: s.textMuted, fontSize: '0.85rem', marginBottom: '30px' }}>Escolha a roupagem tecnológica que mais combina com você.</p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {/* Opção Apple Design */}
+                <div 
+                  onClick={() => setTheme('creative')}
+                  style={{
+                    padding: '20px', borderRadius: '14px', cursor: 'pointer', textAlign: 'left',
+                    background: '#ffffff', border: theme === 'creative' ? '2px solid #0071e3' : '1px solid rgba(0,0,0,0.1)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.02)', transition: 'all 0.2s ease'
+                  }}
+                >
+                  <span style={{ fontWeight: '800', fontSize: '1rem', color: '#1d1d1f', display: 'block' }}>🎨 Design Apple Elegante</span>
+                  <span style={{ fontSize: '0.8rem', color: '#86868b' }}>Interface minimalista, limpa, profissional e com acabamentos premium transparentes.</span>
+                </div>
+
+                {/* Opção Cyber Dark */}
+                <div 
+                  onClick={() => setTheme('cyber')}
+                  style={{
+                    padding: '20px', borderRadius: '14px', cursor: 'pointer', textAlign: 'left',
+                    background: '#090514', border: theme === 'cyber' ? '2px solid #00f2fe' : '1px solid rgba(255,255,255,0.05)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.4)', transition: 'all 0.2s ease'
+                  }}
+                >
+                  <span style={{ fontWeight: '800', fontSize: '1rem', color: '#ffffff', display: 'block' }}>⚡ Design Cyber Tech</span>
+                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Estética escura futurista com iluminação em neon azul ciano e roxo magenta profundo.</span>
+                </div>
+              </div>
             </div>
-            <span style={{ fontSize: '0.85rem', color: currentStyles.textMuted, marginTop: '8px', display: 'block' }}>{progress}% Concluído</span>
+
+            <button onClick={() => setStage('tour')} style={{ background: s.buttonBg, color: s.buttonText, border: 'none', borderRadius: '12px', padding: '14px', fontWeight: '700', cursor: 'pointer' }}>
+              CONFIRMAR INTERFACE
+            </button>
+          </div>
+        )}
+
+        {/* ======================================= */}
+        {/* ETAPA 5: TOUR NO APP EXPLICATIVO */}
+        {/* ======================================= */}
+        {stage === 'tour' && (
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+            <div>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: '800', textAlign: 'center', marginBottom: '20px' }}>Mapeamento do Sistema</h2>
+              
+              {tourStep === 0 && (
+                <div style={tourBoxStyle}>
+                  <span style={{ fontWeight: '800', color: s.primary, display: 'block', marginBottom: '6px' }}>🤖 Módulo IA Co-Pilot</span>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: s.text, lineHeight: '1.5' }}>Localizado no topo do painel. Basta digitar em linguagem natural o app que deseja criar e a IA constrói a engenharia em tempo de execução.</p>
+                </div>
+              )}
+              {tourStep === 1 && (
+                <div style={tourBoxStyle}>
+                  <span style={{ fontWeight: '800', color: s.primary, display: 'block', marginBottom: '6px' }}>🎨 Construtor Manual Livre</span>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: s.text, lineHeight: '1.5' }}>Painel estilo "Canva" intuitivo para customizar layouts, botões, conexões de Pix e arrastar funcionalidades complexas sem travas.</p>
+                </div>
+              )}
+              {tourStep === 2 && (
+                <div style={tourBoxStyle}>
+                  <span style={{ fontWeight: '800', color: s.primary, display: 'block', marginBottom: '6px' }}>🔮 Suporte Neural Avançado 24h</span>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: s.text, lineHeight: '1.5' }}>Canal direto aberto para responder instantaneamente qualquer questão da enciclopédia, dúvidas de infraestrutura ou códigos gerados.</p>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {tourStep > 0 && (
+                <button onClick={() => setTourStep(tourStep - 1)} style={{ padding: '14px', border: s.border, background: 'transparent', color: s.text, borderRadius: '12px', cursor: 'pointer' }}>VOLTAR</button>
+              )}
+              <button 
+                onClick={() => tourStep < 2 ? setTourStep(tourStep + 1) : setStage('dashboard')}
+                style={{ flex: 1, background: s.buttonBg, color: s.buttonText, border: 'none', borderRadius: '12px', padding: '14px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                {tourStep === 2 ? 'ENTRAR NO DASHBOARD' : 'PRÓXIMO PASSO'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================= */}
+        {/* ETAPA 6: DASHBOARD ULTRA COMPLETO */}
+        {/* ======================================= */}
+        {stage === 'dashboard' && (
+          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+            
+            {/* Header do Dashboard */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px', borderBottom: s.border, paddingBottom: '12px' }}>
+              <div>
+                <span style={{ fontSize: '0.7rem', color: s.textMuted, fontWeight: '700' }}>SISTEMA SOVEREIGN</span>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '800' }}>Olá, {nome || 'Mestre'}</h3>
+              </div>
+              <button onClick={() => setTheme(isCyber ? 'creative' : 'cyber')} style={{ padding: '4px 10px', borderRadius: '20px', border: s.border, background: 'transparent', color: s.text, fontSize: '0.7rem', cursor: 'pointer', fontWeight: 'bold' }}>
+                {isCyber ? '⚡ CYBER' : '🎨 APPLE'}
+              </button>
+            </div>
+
+            {/* Menu Lateral em abas horizontais do App */}
+            <div style={{ display: 'flex', gap: '4px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '14px' }}>
+              <button onClick={() => setDashTab('criar-ia')} style={tabStyle(dashTab === 'criar-ia', s)}>Criador IA</button>
+              <button onClick={() => setDashTab('canva')} style={tabStyle(dashTab === 'canva', s)}>Canva Manual</button>
+              <button onClick={() => setDashTab('suporte-24h')} style={tabStyle(dashTab === 'suporte-24h', s)}>IA 24h</button>
+              {isAdminMode && <button onClick={() => setDashTab('adm')} style={tabStyle(dashTab === 'adm', s)}>Painel ADM</button>}
+            </div>
+
+            {/* Conteúdo Dinâmico das Abas */}
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: '320px' }}>
+              
+              {/* ABA: CRIADOR IA */}
+              {dashTab === 'criar-ia' && (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '12px' }}>
+                    {aiChat.map((msg, i) => (
+                      <div key={i} style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', background: msg.sender === 'user' ? s.buttonBg : s.inputBg, color: msg.sender === 'user' ? '#fff' : s.text, padding: '10px 14px', borderRadius: '12px', fontSize: '0.85rem', maxWidth: '85%' }}>{msg.text}</div>
+                    ))}
+                  </div>
+                  <form onSubmit={handleAiSend} style={{ display: 'flex', gap: '6px' }}>
+                    <input type="text" value={aiInput} onChange={(e) => setAiInput(e.target.value)} placeholder="Comande a IA do seu jeito..." style={inputStyle(s)} />
+                    <button style={{ background: s.buttonBg, border: 'none', borderRadius: '10px', color: '#fff', padding: '0 14px', cursor: 'pointer' }}>➔</button>
+                  </form>
+                </div>
+              )}
+
+              {/* ABA: CANVA MANUAL */}
+              {dashTab === 'canva' && (
+                <div style={{ textAlign: 'center', padding: '20px 10px' }}>
+                  <span style={{ fontSize: '2rem' }}>🎨</span>
+                  <h4 style={{ margin: '10px 0 6px 0', fontSize: '0.95rem' }}>Estúdio Visual Autônomo</h4>
+                  <p style={{ color: s.textMuted, fontSize: '0.8rem', margin: '0 0 16px 0' }}>Arraste blocos de banco de dados, split financeiro Pix e regras customizadas livremente.</p>
+                  <button style={{ background: s.buttonBg, color: '#fff', border: 'none', borderRadius: '10px', padding: '10px 16px', fontSize: '0.8rem', fontWeight: 'bold' }}>Novo Layout em Branco</button>
+                </div>
+              )}
+
+              {/* ABA: SUPORTE IA 24H */}
+              {dashTab === 'suporte-24h' && (
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '12px' }}>
+                    {supportChat.map((msg, i) => (
+                      <div key={i} style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', background: msg.sender === 'user' ? s.buttonBg : s.inputBg, color: msg.sender === 'user' ? '#fff' : s.text, padding: '10px 14px', borderRadius: '12px', fontSize: '0.85rem', maxWidth: '85%' }}>{msg.text}</div>
+                    ))}
+                  </div>
+                  <form onSubmit={handleSupportSend} style={{ display: 'flex', gap: '6px' }}>
+                    <input type="text" value={supportInput} onChange={(e) => setSupportInput(e.target.value)} placeholder="Pergunte qualquer coisa à IA livre..." style={inputStyle(s)} />
+                    <button style={{ background: s.buttonBg, border: 'none', borderRadius: '10px', color: '#fff', padding: '0 14px', cursor: 'pointer' }}>➔</button>
+                  </form>
+                </div>
+              )}
+
+              {/* ABA EXCLUSIVA DE ADMINISTRAÇÃO */}
+              {dashTab === 'adm' && isAdminMode && (
+                <div style={{ background: 'rgba(0,0,0,0.03)', border: s.border, borderRadius: '12px', padding: '14px' }}>
+                  <h4 style={{ margin: '0 0 8px 0', color: '#ff453a', fontSize: '0.9rem' }}>❖ Central Administrativa Superior</h4>
+                  <p style={{ color: s.textMuted, fontSize: '0.75rem', margin: '0 0 12px 0' }}>Controle global e irrestrito sobre usuários, créditos e chaves operacionais.</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.8rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px', background: s.inputBg, borderRadius: '6px' }}><span>Usuários Indexados:</span><strong>1.482</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px', background: s.inputBg, borderRadius: '6px' }}><span>Créditos Totais Ativos:</span><strong>Ilimitados</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px', background: s.inputBg, borderRadius: '6px' }}><span>Requisições Recentes:</span><strong>Ok (200)</strong></div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
           </div>
         )}
 
@@ -221,10 +433,30 @@ const inputStyle = (styles) => ({
   width: '100%',
   backgroundColor: styles.inputBg,
   border: styles.border,
-  borderRadius: '12px',
-  padding: '14px',
-  color: styles.inputTextColor,
-  fontSize: '0.95rem',
+  borderRadius: '10px',
+  padding: '12px',
+  color: styles.text,
+  fontSize: '0.85rem',
   outline: 'none',
   boxSizing: 'border-box'
 });
+
+const tabStyle = (active, styles) => ({
+  padding: '8px 14px',
+  background: active ? styles.buttonBg : 'transparent',
+  color: active ? '#ffffff' : styles.textMuted,
+  border: active ? 'none' : styles.border,
+  borderRadius: '10px',
+  fontSize: '0.75rem',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap'
+});
+
+const tourBoxStyle = {
+  background: 'rgba(0,0,0,0.02)',
+  border: '1px solid rgba(0,0,0,0.05)',
+  borderRadius: '14px',
+  padding: '16px',
+  textAlign: 'left'
+};
