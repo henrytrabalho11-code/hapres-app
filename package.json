@@ -1,13 +1,15 @@
 {
   "name": "hapres-sovereign",
   "version": "1.0.0",
-  "description": "Hapres Sovereign Premium Interface Engine",
-  "main": "páginas/index.js",
+  "private": true,
   "scripts": {
-    "start": "node páginas/index.js",
-    "build": "echo 'Build completa para ambiente estável'"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
   }
 }
