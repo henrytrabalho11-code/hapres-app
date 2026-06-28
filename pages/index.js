@@ -1,479 +1,902 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function HapresSovereign() {
-  const [activeMenu, setActiveMenu] = useState('Overview');
-  const [activeTab, setActiveTab] = useState('Overview');
+export default function App() {
+  // --- ESTADOS DO SISTEMA ---
+  const [stage, setStage] = useState('overboarding'); // overboarding, register, plans, chroma, forging, tour, dashboard
+  const [overboardIndex, setOverboardIndex] = useState(0);
   
-  // State: Gerenciamento Mestre de Contas e Perfis
-  const [contas, setContas] = useState([
-    { id: 1, nome: "Henry Serpa", role: "Root Administrator", avatar: "H", status: "Ativo", email: "henry@hapres.com", hash: "srv_root_01" }
-  ]);
-  const [contaAtual, setContaAtual] = useState(contas[0]);
-  const [novoNome, setNovoNome] = useState('');
-  const [novoEmail, setNovoEmail] = useState('');
-  const [novaFuncao, setNovaFuncao] = useState('Premium Operator');
+  // Dados de Cadastro (Identity Forge)
+  const [nome, setNome] = useState('');
+  const [whatsapp, setWhatsApp] = useState('');
+  const [email, setEmail] = useState('');
+  const [chaveMestra, setChaveMestra] = useState('');
 
-  // State: Super Canva (Construtor de Módulos Arrasta e Solta)
-  const [modulosDisponiveis, setModulosDisponiveis] = useState([
-    { id: 'mod_pix', name: 'Gateway Pix VIP', icon: 'fa-qrcode', desc: 'Processamento instantâneo de faturamento com split automático.' },
-    { id: 'mod_futebol', name: 'Robô Esportivo Inteligente', icon: 'fa-robot', desc: 'Análise neural de probabilidade e automação de sinais para futebol.' },
-    { id: 'mod_checkout', name: 'Checkout High-Ticket', icon: 'fa-credit-card', desc: 'Página de pagamento otimizada com conversão em 1 clique.' },
-    { id: 'mod_webhook', name: 'Disparador Webhook Mestre', icon: 'fa-network-wired', desc: 'Integração de dados em tempo real com qualquer CRM do mercado.' }
-  ]);
+  // Chroma Forge (Paleta de Cores Expandida)
+  const [activeTheme, setActiveTheme] = useState('luxury'); // luxury, minimalist, neon
+
+  // Progresso do Forging (85% Loading)
+  const [progress, setProgress] = useState(0);
+  const [forgingLogs, setForgingLogs] = useState([]);
+
+  // Tour Interativo
+  const [tourStep, setTourStep] = useState(0);
+
+  // Navegação do Dashboard
+  const [activeMenu, setActiveMenu] = useState('Overview'); // Overview, Super Canva, Co-Pilot IA, Suporte Neural, Central Mestre
+
+  // Super Canva (Catálogo e Canvas de Arrasto)
+  const [searchQuery, setSearchQuery] = useState('');
   const [modulosInjetados, setModulosInjetados] = useState([]);
-
-  // State: Co-Pilot IA Módulo de Requisições
-  const [aiPrompt, setAiPrompt] = useState('');
-  const [aiLogs, setAiLogs] = useState([
-    { time: '21:04:12', status: 'SUCCESS', msg: 'Sincronização da malha neural completada.' },
-    { time: '21:12:45', status: 'ACTIVE', msg: 'Aguardando novas diretrizes de injeção de código...' }
+  const [modulosDisponiveis, setModulosDisponiveis] = useState([
+    { id: 'mod_pix', name: 'Gateway Pix VIP', icon: 'fa-qrcode', desc: 'Processamento instantâneo de faturamento com split automático.', cat: 'faturamento' },
+    { id: 'mod_futebol', name: 'Sport Bot Pro', icon: 'fa-soccer-ball', desc: 'Análise neural e automação de sinais esportivos em tempo real.', cat: 'futebol' },
+    { id: 'mod_fe', name: 'Módulo Fé & Liturgia', icon: 'fa-church', desc: 'Liturgia diária, Santos do dia e doação automática via Pix.', cat: 'fe' },
+    { id: 'mod_crypto', name: 'Cripto Matrix', icon: 'fa-bitcoin', desc: 'Cotações de criptomoedas e tokens em tempo real.', cat: 'crypto' },
+    { id: 'mod_logistica', name: 'Roteador ViaCEP', icon: 'fa-truck', desc: 'Cálculo de frete por KM e rastreamento de entregas.', cat: 'logistica' }
   ]);
 
-  // Handler: Criar Perfil
-  const handleCriarPerfil = (e) => {
+  // Inteligência Artificial (Co-Pilot IA)
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [aiChats, setAiLogs] = useState([
+    { role: 'system', msg: 'Sovereign Core ativo. Como posso ajustar a tua infraestrutura hoje?' }
+  ]);
+
+  // --- COMPORTAMENTOS ---
+
+  // Slide de Overboarding
+  const overboards = [
+    { title: "A Fábrica de Magia", text: "Cria qualquer tipo de aplicação no mundo de forma instantânea, prática e livre de burocracias técnicas." },
+    { title: "Módulos Vivos", text: "Injeta placares de futebol, gateways de pagamento Pix e liturgia católica arrastando os blocos direto no Canva." },
+    { title: "Soberania Inquebrável", text: "O teu link gerado na hora, o teu app publicado imediatamente, sem depender de terceiros ou perder faturamento." },
+    { title: "Chave Mestra Criada", text: "Autonomia completa controlando utilizadores e assinaturas diretamente pelo teu painel administrativo." }
+  ];
+
+  const handleNextOverboard = () => {
+    if (overboardIndex < overboards.length - 1) {
+      setOverboardIndex(overboardIndex + 1);
+    } else {
+      setStage('register');
+    }
+  };
+
+  // Processamento do Cadastro
+  const handleRegister = (e) => {
     e.preventDefault();
-    if (!novoNome.trim() || !novoEmail.trim()) return alert("Preencha todos os campos do perfil operacional.");
-    
-    const novo = {
-      id: Date.now(),
-      nome: novoNome,
-      role: novaFuncao,
-      avatar: novoNome.charAt(0).toUpperCase(),
-      status: "Pendente",
-      email: novoEmail,
-      hash: `srv_op_${Math.floor(Math.random() * 90 + 10)}`
+    if (!nome.trim() || !whatsapp.trim() || !email.trim()) {
+      alert("Por favor, preenche todos os campos.");
+      return;
+    }
+    // Geração de Chave Mestra Única
+    const token = `SRV_ROOT_${Math.floor(1000 + Math.random() * 9000)}_${nome.split(' ')[0].toUpperCase()}`;
+    setChaveMestra(token);
+    setStage('plans');
+  };
+
+  // Simulação de Loading do Forging
+  useEffect(() => {
+    if (stage !== 'forging') return;
+
+    const logs = [
+      "Inicializando ambiente de segurança isolado...",
+      "Alocando servidores na nuvem soberana...",
+      "Injetando inteligência artificial (Claude/GPT)...",
+      "Compilando componentes visuais em tempo real...",
+      "Gerando PWA instalável..."
+    ];
+
+    let currentLogIndex = 0;
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 85) {
+          clearInterval(interval);
+          setStage('tour');
+          return 85;
+        }
+        return prev + 5;
+      });
+
+      if (currentLogIndex < logs.length) {
+        setForgingLogs((prevLogs) => [...prevLogs, logs[currentLogIndex]]);
+        currentLogIndex++;
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [stage]);
+
+  // Escolha Cromática Dinâmica (Chroma Forge)
+  const themes = {
+    luxury: {
+      '--bg-main': '#06040a',
+      '--bg-card': 'rgba(20, 17, 34, 0.7)',
+      '--border-color': 'rgba(123, 87, 255, 0.12)',
+      '--accent-primary': '#c5a059', // Ouro
+      '--accent-secondary': '#10b981', // Esmeralda
+      '--text-main': '#ffffff',
+      '--text-muted': '#948fa6'
+    },
+    minimalist: {
+      '--bg-main': '#0a0a0a',
+      '--bg-card': 'rgba(255, 255, 255, 0.03)',
+      '--border-color': 'rgba(255, 255, 255, 0.08)',
+      '--accent-primary': '#f3f4f6', // Platina/Branco
+      '--accent-secondary:': '#6b7280',
+      '--text-main': '#ffffff',
+      '--text-muted': '#9ca3af'
+    },
+    neon: {
+      '--bg-main': '#02000a',
+      '--bg-card': 'rgba(20, 10, 40, 0.5)',
+      '--border-color': 'rgba(255, 0, 85, 0.2)',
+      '--accent-primary': '#ff0055', // Rosa Neon
+      '--accent-secondary': '#00ffcc', // Ciano Neon
+      '--text-main': '#ffffff',
+      '--text-muted': '#a78bfa'
+    }
+  };
+
+  const getThemeStyles = () => {
+    return themes[activeTheme] || themes.luxury;
+  };
+
+  // Drag and Drop do Canva
+  const handleDragStart = (e, item) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify(item));
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const itemData = e.dataTransfer.getData("text/plain");
+    if (!itemData) return;
+    const item = JSON.parse(itemData);
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left - 40;
+    const y = e.clientY - rect.top - 20;
+
+    const novoModulo = {
+      ...item,
+      uniqueId: Date.now(),
+      x,
+      y
     };
-    
-    setContas([...contas, novo]);
-    setNovoNome('');
-    setNovoEmail('');
+
+    setModulosInjetados([...modulosInjetados, novoModulo]);
   };
 
-  // Handler: Injetar Módulo no Canva
-  const injetarModulo = (modulo) => {
-    if (modulosInjetados.find(m => m.id === modulo.id)) return alert("Módulo já acoplado na instância.");
-    setModulosInjetados([...modulosInjetados, modulo]);
+  const handleRemoveModule = (uniqueId) => {
+    setModulosInjetados(modulosInjetados.filter(m => m.uniqueId !== uniqueId));
   };
 
-  // Handler: Remover Módulo do Canva
-  const removerModulo = (id) => {
-    setModulosInjetados(modulosInjetados.filter(m => m.id !== id));
+  // Envio de mensagem para a IA
+  const handleSendAi = () => {
+    if (!aiPrompt.trim()) return;
+    const newChat = [
+      ...aiChats,
+      { role: 'user', msg: aiPrompt }
+    ];
+    setAiLogs(newChat);
+    setAiPrompt('');
+
+    setTimeout(() => {
+      setAiLogs([
+        ...newChat,
+        { role: 'system', msg: `Comando "${aiPrompt}" recebido. A otimizar a estrutura interna do Canva e sincronizar novas chaves de API...` }
+      ]);
+    }, 800);
   };
+
+  // Filtragem de catálogo do Canva
+  const filteredCatalog = modulosDisponiveis.filter(m =>
+    m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    m.desc.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <>
+    <div style={{ ...getThemeStyles(), minHeight: '100vh', backgroundColor: 'var(--bg-main)', color: 'var(--text-main)', transition: 'all 0.5s ease' }}>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-      
-      <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        
-        :root {
-          --bg-main: #06040a;
-          --bg-sidebar: #0b0813;
-          --bg-card: #120e22;
-          --bg-card-hover: #191430;
-          --accent-purple: #7b57ff;
-          --accent-glow: rgba(123, 87, 255, 0.15);
-          --border-color: rgba(123, 87, 255, 0.1);
-          --text-main: #ffffff;
-          --text-secondary: #948fa6;
-        }
 
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        body {
-          background-color: var(--bg-main);
-          color: var(--text-main);
-          min-height: 100vh;
-          overflow-x: hidden;
-        }
-
-        /* Custom Scrollbar Premium */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-main); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent-purple); }
-      `}</style>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', minHeight: '100vh' }}>
-        
-        {/* SIDEBAR ORQUESTRAÇÃO */}
-        <aside style={{ background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border-color)', padding: '32px 20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ padding: '0 12px 24px 12px', borderBottom: '1px solid rgba(255,255,255,0.03)', marginBottom: '32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <span style={{ fontSize: '20px', fontWeight: '800', letterSpacing: '-0.04em', color: '#fff' }}>HAPRES</span>
-                <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-purple)', marginLeft: '6px', background: 'rgba(123, 87, 255, 0.12)', padding: '3px 8px', borderRadius: '20px', letterSpacing: '0.05em' }}>SOVEREIGN</span>
-              </div>
-            </div>
-
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {[
-                { name: 'Overview', icon: 'fa-chart-pie' },
-                { name: 'Co-Pilot IA', icon: 'fa-robot' },
-                { name: 'Super Canva', icon: 'fa-cubes' },
-                { name: 'Suporte Neural', icon: 'fa-brain' },
-                { name: 'Central Mestre', icon: 'fa-sliders' }
-              ].map((item) => (
-                <div 
-                  key={item.name}
-                  onClick={() => setActiveMenu(item.name)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '14px',
-                    padding: '14px 18px',
-                    borderRadius: '16px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: activeMenu === item.name ? '600' : '500',
-                    color: activeMenu === item.name ? '#fff' : 'var(--text-secondary)',
-                    background: activeMenu === item.name ? 'linear-gradient(90deg, rgba(123, 87, 255, 0.12) 0%, rgba(123, 87, 255, 0.01) 100%)' : 'transparent',
-                    borderLeft: activeMenu === item.name ? '3px solid var(--accent-purple)' : '3px solid transparent',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  <i className={`fa-solid ${item.icon}`} style={{ color: activeMenu === item.name ? 'var(--accent-purple)' : 'var(--text-secondary)', fontSize: '16px', width: '20px' }}></i>
-                  {item.name}
-                </div>
+      {/* --- ETAPA 1: OVERBOARDING --- */}
+      {stage === 'overboarding' && (
+        <div style={styles.fullscreenCenter}>
+          <div style={styles.glassCard} className="glass-panel">
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>PRE-LAUNCH</span>
+            <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '20px' }}>{overboards[overboardIndex].title}</h1>
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '40px' }}>{overboards[overboardIndex].text}</p>
+            
+            <div style={styles.indicatorContainer}>
+              {overboards.map((_, idx) => (
+                <div key={idx} style={{
+                  ...styles.dot,
+                  backgroundColor: idx === overboardIndex ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)',
+                  width: idx === overboardIndex ? '30px' : '10px'
+                }} />
               ))}
-            </nav>
-          </div>
-
-          {/* INSTÂNCIA ATIVA DO PERFIL */}
-          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent-purple) 0%, #4c26d9 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '14px', boxShadow: '0 4px 12px rgba(123, 87, 255, 0.3)' }}>
-              {contaAtual.avatar}
             </div>
-            <div style={{ overflow: 'hidden', flex: 1 }}>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{contaAtual.nome}</div>
-              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }}></span>
-                {contaAtual.role}
+
+            <button style={styles.primaryButton} onClick={handleNextOverboard}>Avançar</button>
+          </div>
+        </div>
+      )}
+
+      {/* --- ETAPA 2: IDENTITY FORGE (CADASTRO) --- */}
+      {stage === 'register' && (
+        <div style={styles.fullscreenCenter}>
+          <form style={{ ...styles.glassCard, maxWidth: '500px' }} onSubmit={handleRegister} className="glass-panel">
+            <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '10px' }}>Identity Forge</h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '14px' }}>Cria a tua identidade mestre e gera as tuas chaves lógicas.</p>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Nome Completo</label>
+              <input type="text" style={styles.input} placeholder="Henry Serpa" value={nome} onChange={(e) => setNome(e.target.value)} required />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>WhatsApp Operacional</label>
+              <input type="text" style={styles.input} placeholder="(11) 99999-9999" value={whatsapp} onChange={(e) => setWhatsApp(e.target.value)} required />
+            </div>
+
+            <div style={styles.formGroup}>
+              <label style={styles.label}>E-mail Principal</label>
+              <input type="email" style={styles.input} placeholder="henryserpa11@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            </div>
+
+            <button type="submit" style={{ ...styles.primaryButton, width: '100%', marginTop: '20px' }}>Forjar Instância</button>
+          </form>
+        </div>
+      )}
+
+      {/* --- ETAPA 3: SOVEREIGN PLANS (TABELA DE PREÇOS PRO) --- */}
+      {stage === 'plans' && (
+        <div style={styles.fullscreenCenter}>
+          <div style={{ ...styles.glassCard, maxWidth: '850px', width: '100%' }} className="glass-panel">
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>MUTAÇÃO DE RECURSOS</span>
+            <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '40px', textAlign: 'center' }}>Escolhe o teu Nível de Permissão</h1>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+              <div style={{ background: 'rgba(0,0,0,0.2)', padding: '30px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <h3 style={{ fontSize: '20px', fontWeight: '700' }}>Essence (Free)</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '10px' }}>Para testes rápidos e fluxos estáticos básicos.</p>
+                  <ul style={{ listStyle: 'none', padding: 0, marginTop: '20px', fontSize: '14px' }}>
+                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> 2 Módulos no Canva</li>
+                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Templates Standard</li>
+                  </ul>
+                </div>
+                <button style={{ ...styles.primaryButton, background: 'transparent', color: '#fff', border: '1px solid var(--border-color)', marginTop: '30px' }} onClick={() => setStage('chroma')}>Continuar com Free</button>
+              </div>
+
+              <div style={{ background: 'rgba(197, 160, 89, 0.03)', padding: '30px', borderRadius: '20px', border: '2px solid var(--accent-primary)', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--accent-primary)', color: '#000', padding: '3px 12px', borderRadius: '20px', fontSize: '10px', fontWeight: '800' }}>RECOMENDADO</span>
+                <div>
+                  <h3 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--accent-primary)' }}>SOVEREIGN PRO</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '10px' }}>Acesso ilimitado ao ecossistema global, inteligência artificial avançada e publicação nativa.</p>
+                  <ul style={{ listStyle: 'none', padding: 0, marginTop: '20px', fontSize: '14px' }}>
+                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Todos os Módulos Omni-API</li>
+                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Chroma Forge Expandido</li>
+                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> IA Claude/GPT Executora 24/7</li>
+                  </ul>
+                </div>
+                <button style={{ ...styles.primaryButton, marginTop: '30px' }} onClick={() => setStage('chroma')}>Liberar Acesso Pro</button>
               </div>
             </div>
           </div>
-        </aside>
+        </div>
+      )}
 
-        {/* MALHA PRINCIPAL DE CONTEÚDO */}
-        <main style={{ padding: '48px 64px', background: 'radial-gradient(circle at 50% 0%, #110b24 0%, #06040a 60%)', overflowY: 'auto', maxHeight: '100vh' }}>
-          
-          {/* PAINEL: OVERVIEW MULTICONTAS */}
-          {activeMenu === 'Overview' && (
+      {/* --- ETAPA 4: CHROMA FORGE (PALETAS COMPLETAS) --- */}
+      {stage === 'chroma' && (
+        <div style={styles.fullscreenCenter}>
+          <div style={{ ...styles.glassCard, maxWidth: '900px', width: '100%', textAlign: 'center' }} className="glass-panel">
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>IDENTIDADE VISUAL</span>
+            <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '40px' }}>Chroma Forge</h1>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '40px' }}>
+              <div 
+                style={{ ...styles.themeCard, border: activeTheme === 'luxury' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)' }}
+                onClick={() => setActiveTheme('luxury')}
+              >
+                <i className="fa-solid fa-crown" style={{ fontSize: '24px', color: '#c5a059', marginBottom: '15px' }}></i>
+                <h3>High-Luxury</h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Ouro, Esmeralda & Safira</p>
+              </div>
+
+              <div 
+                style={{ ...styles.themeCard, border: activeTheme === 'minimalist' ? '2px solid #fff' : '1px solid var(--border-color)' }}
+                onClick={() => setActiveTheme('minimalist')}
+              >
+                <i className="fa-solid fa-feather" style={{ fontSize: '24px', color: '#f3f4f6', marginBottom: '15px' }}></i>
+                <h3>Minimalist Essence</h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Branco, Carbono & Tons de Cinza</p>
+              </div>
+
+              <div 
+                style={{ ...styles.themeCard, border: activeTheme === 'neon' ? '2px solid #ff0055' : '1px solid var(--border-color)' }}
+                onClick={() => setActiveTheme('neon')}
+              >
+                <i className="fa-solid fa-bolt" style={{ fontSize: '24px', color: '#ff0055', marginBottom: '15px' }}></i>
+                <h3>Vibrant Neon</h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Cores intensas, acesas & artísticas</p>
+              </div>
+            </div>
+
+            <button style={styles.primaryButton} onClick={() => setStage('forging')}>Aplicar Identidade</button>
+          </div>
+        </div>
+      )}
+
+      {/* --- ETAPA 5: FORGING INSTANCE (PROGRESS BAR 85%) --- */}
+      {stage === 'forging' && (
+        <div style={styles.fullscreenCenter}>
+          <div style={{ ...styles.glassCard, maxWidth: '600px', width: '100%', textAlign: 'center' }} className="glass-panel">
+            <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '10px' }}>Compilar Instância</h1>
+            <div style={styles.progressBarContainer}>
+              <div style={{ ...styles.progressBarFill, width: `${progress}%` }}></div>
+            </div>
+            <div style={{ marginTop: '15px', color: 'var(--accent-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
+              {progress}% - INSTÂNCIA ATIVA
+            </div>
+
+            <div style={styles.terminalConsole}>
+              {forgingLogs.map((log, idx) => (
+                <div key={idx} style={{ marginBottom: '6px' }}>&gt; {log}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- ETAPA 6: TOUR INTERATIVO OBRIGATÓRIO --- */}
+      {stage === 'tour' && (
+        <div style={styles.fullscreenCenter}>
+          <div style={{ ...styles.glassCard, maxWidth: '550px', textAlign: 'center' }} className="glass-panel">
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>GUIA DO IMPÉRIO</span>
+            <h1 style={{ fontSize: '28px', fontWeight: '800', marginTop: '10px', marginBottom: '20px' }}>Guia Rápido de Utilização</h1>
+            
+            {tourStep === 0 && (
+              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>O teu comando central está no **Dashboard**. As funções principais (como projetos e faturamento) ficam concentradas em botões grandes no meio da tua tela.</p>
+            )}
+            {tourStep === 1 && (
+              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Utiliza a **Barra Lateral** para gerenciar os teus utilitários essenciais: Perfil, Configurações de Servidor, Manual do Usuário e o teu Assistente de Inteligência Artificial.</p>
+            )}
+            {tourStep === 2 && (
+              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>No **Super Canva**, tu procuras pelo bloco ideal, arrastas e soltas diretamente na malha espacial. O sistema injeta automaticamente o código e conecta as APIs.</p>
+            )}
+
+            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '40px' }}>
+              {tourStep > 0 && (
+                <button style={{ ...styles.primaryButton, background: 'transparent', color: '#fff', border: '1px solid var(--border-color)' }} onClick={() => setTourStep(tourStep - 1)}>Anterior</button>
+              )}
+              {tourStep < 2 ? (
+                <button style={styles.primaryButton} onClick={() => setTourStep(tourStep + 1)}>Próximo</button>
+              ) : (
+                <button style={styles.primaryButton} onClick={() => setStage('dashboard')}>Começar</button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- ETAPA 7: WORKSPACE / DASHBOARD --- */}
+      {stage === 'dashboard' && (
+        <div style={styles.dashboardContainer}>
+          {/* BARRA LATERAL FIXA - UTILITÁRIOS */}
+          <aside style={styles.sidebar}>
             <div>
-              <div style={{ marginBottom: '40px' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-purple)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Sovereign Dashboard</span>
-                <h1 style={{ fontSize: '36px', fontWeight: '800', letterSpacing: '-0.03em', marginTop: '6px' }}>Visão Geral da Operação</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '24px', marginBottom: '30px' }}>
+                <span style={{ fontSize: '18px', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>HAPRES</span>
+                <span style={{ fontSize: '9px', fontWeight: '700', color: 'var(--accent-primary)', background: 'rgba(197, 160, 89, 0.12)', padding: '2px 8px', borderRadius: '20px' }}>SOVEREIGN</span>
               </div>
 
-              {/* Grid de Métricas Principais */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '40px' }}>
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(123, 87, 255, 0.1)', display: 'flex', alignItems: 'center', justifycontent: 'center', justifyContent: 'center' }}>
-                      <i className="fa-solid fa-layer-group" style={{ color: 'var(--accent-purple)', fontSize: '18px' }}></i>
-                    </div>
-                    <span style={{ fontSize: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '4px 10px', borderRadius: '12px', fontWeight: '600' }}>ONLINE</span>
-                  </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: '500' }}>Módulos Ativos no Canva</div>
-                  <div style={{ fontSize: '36px', fontWeight: '800', marginTop: '8px', letterSpacing: '-0.02em' }}>{modulosInjetados.length} <span style={{ fontSize: '16px', color: 'var(--text-secondary)', fontWeight: '400' }}>/ {modulosDisponiveis.length}</span></div>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div 
+                  style={{ ...styles.navItem, color: activeMenu === 'Overview' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Overview' ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+                  onClick={() => setActiveMenu('Overview')}
+                >
+                  <i className="fa-solid fa-grid-2"></i> Visão Geral
+                </div>
+                <div 
+                  style={{ ...styles.navItem, color: activeMenu === 'Super Canva' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Super Canva' ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+                  onClick={() => setActiveMenu('Super Canva')}
+                >
+                  <i className="fa-solid fa-cubes"></i> Super Canva
+                </div>
+                <div 
+                  style={{ ...styles.navItem, color: activeMenu === 'Co-Pilot IA' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Co-Pilot IA' ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+                  onClick={() => setActiveMenu('Co-Pilot IA')}
+                >
+                  <i className="fa-solid fa-brain"></i> Co-Pilot IA
+                </div>
+                <div 
+                  style={{ ...styles.navItem, color: activeMenu === 'Suporte Neural' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Suporte Neural' ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+                  onClick={() => setActiveMenu('Suporte Neural')}
+                >
+                  <i className="fa-solid fa-headset"></i> Suporte Neural
                 </div>
 
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(123, 87, 255, 0.1)', display: 'flex', alignItems: 'center', justifycontent: 'center', justifyContent: 'center' }}>
-                      <i className="fa-solid fa-users-gear" style={{ color: 'var(--accent-purple)', fontSize: '18px' }}></i>
-                    </div>
-                  </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: '500' }}>Operadores Vinculados</div>
-                  <div style={{ fontSize: '36px', fontWeight: '800', marginTop: '8px', letterSpacing: '-0.02em' }}>{contas.length}</div>
-                </div>
-
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(123, 87, 255, 0.1)', display: 'flex', alignItems: 'center', justifycontent: 'center', justifyContent: 'center' }}>
-                      <i className="fa-solid fa-terminal" style={{ color: 'var(--accent-purple)', fontSize: '18px' }}></i>
-                    </div>
-                  </div>
-                  <div style={{ color: 'var(--text-secondary)', fontSize: '14px', fontWeight: '500' }}>Perfil Operando Instância</div>
-                  <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '16px', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{contaAtual.nome}</div>
-                </div>
-              </div>
-
-              {/* Bloco de Monitoramento em Tempo Real */}
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <i className="fa-solid fa-wave-square" style={{ color: 'var(--accent-purple)' }}></i> Arquitetura de Módulos Injetados
-                </h3>
-                {modulosInjetados.length === 0 ? (
-                  <div style={{ textAlignment: 'center', textAlign: 'center', padding: '40px 0', color: 'var(--text-secondary)' }}>
-                    <i className="fa-solid fa-circle-exclamation" style={{ fontSize: '24px', marginBottom: '12px', display: 'block' }}></i>
-                    Nenhum microsserviço ou bloco funcional acoplado no Super Canva atualmente.
-                  </div>
-                ) : (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    {modulosInjetados.map(m => (
-                      <div key={m.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(123, 87, 255, 0.2)', padding: '20px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'var(--accent-purple)', display: 'flex', alignItems: 'center', justifycontent: 'center', justifyContent: 'center' }}>
-                          <i className={`fa-solid ${m.icon}`} style={{ color: '#fff' }}></i>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: '14px', fontWeight: '600' }}>{m.name}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>Status: Ativo e integrado à API Mestre.</div>
-                        </div>
-                      </div>
-                    ))}
+                {/* ABA SECRETA DE ADMINISTRADOR ROOT */}
+                {(email === "henryserpa11@gmail.com" || email === "henrytrabalho11@gmail.com" || whatsapp.includes("992819767")) && (
+                  <div 
+                    style={{ ...styles.navItem, color: activeMenu === 'Central Mestre' ? 'var(--accent-secondary)' : 'var(--text-muted)', background: activeMenu === 'Central Mestre' ? 'rgba(16,185,129,0.05)' : 'transparent', borderLeft: '2px solid var(--accent-secondary)' }}
+                    onClick={() => setActiveMenu('Central Mestre')}
+                  >
+                    <i className="fa-solid fa-shield-halved"></i> Central Mestre
                   </div>
                 )}
+              </nav>
+            </div>
+
+            {/* Perfil logado no fundo da Sidebar */}
+            <div style={styles.sidebarProfile}>
+              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '13px', color: '#000' }}>
+                {nome.charAt(0).toUpperCase()}
+              </div>
+              <div style={{ overflow: 'hidden' }}>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{nome}</div>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>Chave: {chaveMestra}</div>
               </div>
             </div>
-          )}
+          </aside>
 
-          {/* PAINEL: SUPER CANVA (ARRASTA/CLICA E INJETA) */}
-          {activeMenu === 'Super Canva' && (
-            <div>
-              <div style={{ marginBottom: '40px' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-purple)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Visual Matrix Builder</span>
-                <h1 style={{ fontSize: '36px', fontWeight: '800', letterSpacing: '-0.03em', marginTop: '6px' }}>Super Canva Architecture</h1>
-              </div>
+          {/* PAINEL CENTRAL DE CONTEÚDO */}
+          <main style={styles.workspace}>
+            
+            {/* VIEW 1: OVERVIEW COMPLETA */}
+            {activeMenu === 'Overview' && (
+              <div style={{ width: '100%', maxWidth: '1000px' }}>
+                <div style={{ marginBottom: '40px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>CORES & DADOS</span>
+                  <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '6px' }}>Dashboard Central</h1>
+                </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '32px' }}>
-                {/* Área de Ativação / Grid de Módulos */}
-                <div style={{ border: '2px dashed rgba(123, 87, 255, 0.2)', background: 'rgba(18, 14, 34, 0.3)', borderRadius: '28px', padding: '40px', minHeight: '450px' }}>
-                  <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '16px', marginBottom: '24px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '600', color: '#fff' }}>Malha de Execução de Microsserviços SaaS</h3>
-                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>Os blocos ativados abaixo rodam em paralelo diretamente no servidor.</p>
+                {/* Grid Centralizado de Funções e Métricas */}
+                <div style={styles.centralMobileGrid}>
+                  <div style={styles.bentoTile} className="glass-panel" onClick={() => setActiveMenu('Super Canva')}>
+                    <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '32px', color: 'var(--accent-primary)', marginBottom: '15px' }}></i>
+                    <h3>Super Canva</h3>
+                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '5px' }}>Arrasta e solta de precisão de microsserviços</p>
                   </div>
 
-                  {modulosInjetados.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '100px 20px' }}>
-                      <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '48px', color: 'var(--accent-purple)', marginBottom: '20px', display: 'block' }}></i>
-                      <h4 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>Malha Vazia</h4>
-                      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', maxWidth: '400px', margin: '0 auto' }}>Selecione e acople os módulos da central lateral para habilitar gateways de pagamento, robôs ou integrações.</p>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                      {modulosInjetados.map(m => (
-                        <div key={m.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--accent-purple)', padding: '24px', borderRadius: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 4px 20px rgba(123,87,255,0.05)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(123, 87, 255, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <i className={`fa-solid ${m.icon}`} style={{ color: 'var(--accent-purple)', fontSize: '20px' }}></i>
-                            </div>
-                            <div>
-                              <h4 style={{ fontSize: '16px', fontWeight: '600' }}>{m.name}</h4>
-                              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '2px' }}>{m.desc}</p>
-                            </div>
-                          </div>
-                          <button onClick={() => removerModulo(m.id)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', padding: '10px 16px', borderRadius: '12px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Desacoplar</button>
+                  <div style={styles.bentoTile} className="glass-panel">
+                    <i className="fa-solid fa-wallet" style={{ fontSize: '32px', color: 'var(--accent-primary)', marginBottom: '15px' }}></i>
+                    <h3>Faturamento Ativo</h3>
+                    <p style={{ fontSize: '24px', fontWeight: '800', marginTop: '5px' }}>R$ 12.450,00</p>
+                    <p style={{ fontSize: '11px', color: 'var(--accent-secondary)', marginTop: '5px' }}><i className="fa-solid fa-circle"></i> Online</p>
+                  </div>
+
+                  <div style={styles.bentoTile} className="glass-panel">
+                    <i className="fa-solid fa-circle-nodes" style={{ fontSize: '32px', color: 'var(--accent-primary)', marginBottom: '15px' }}></i>
+                    <h3>Módulos Ativos</h3>
+                    <p style={{ fontSize: '24px', fontWeight: '800', marginTop: '5px' }}>{modulosInjetados.length}</p>
+                    <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Microsserviços instalados</p>
+                  </div>
+
+                  <div style={styles.bentoTile} className="glass-panel" onClick={() => setActiveMenu('Co-Pilot IA')}>
+                    <i className="fa-solid fa-robot" style={{ fontSize: '32px', color: 'var(--accent-primary)', marginBottom: '15px' }}></i>
+                    <h3>Assistente Neural</h3>
+                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '5px' }}>Peça alterações diretamente no chat</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* VIEW 2: SUPER CANVA (CATÁLOGO E DRAG & DROP) */}
+            {activeMenu === 'Super Canva' && (
+              <div style={{ width: '100%', maxWidth: '1100px' }}>
+                <div style={{ marginBottom: '30px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>BUILDER VISUAL</span>
+                  <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px' }}>Super Canva Engine</h1>
+                </div>
+
+                <div style={styles.canvaLayout}>
+                  {/* Catálogo com Pesquisa */}
+                  <div style={styles.canvaSidebar}>
+                    <input 
+                      type="text" 
+                      style={styles.inputSearch} 
+                      placeholder="Buscar elementos..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <div style={styles.catalogGrid}>
+                      {filteredCatalog.map(m => (
+                        <div 
+                          key={m.id} 
+                          draggable 
+                          onDragStart={(e) => handleDragStart(e, m)}
+                          style={styles.draggableCard}
+                        >
+                          <i className={`fa-solid ${m.icon}`} style={{ fontSize: '20px', color: 'var(--accent-primary)', marginBottom: '8px' }}></i>
+                          <div style={{ fontSize: '12px', fontWeight: '600' }}>{m.name}</div>
                         </div>
                       ))}
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Central de Microsserviços para Injeção */}
-                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '28px', padding: '28px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '20px' }}><i className="fa-solid fa-box-open" style={{ color: 'var(--accent-purple)', marginRight: '8px' }}></i> Injetores Disponíveis</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                    {modulosDisponiveis.map(m => {
-                      const isInjected = modulosInjetados.some(injetado => injetado.id === m.id);
-                      return (
-                        <div key={m.id} style={{ background: 'rgba(0,0,0,0.15)', border: '1px solid rgba(255,255,255,0.02)', padding: '18px', borderRadius: '16px' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
-                            <i className={`fa-solid ${m.icon}`} style={{ color: 'var(--accent-purple)' }}></i>
-                            <span style={{ fontSize: '14px', fontWeight: '600' }}>{m.name}</span>
+                  {/* Dropzone do Canva */}
+                  <div 
+                    style={styles.canvaWorkspace} 
+                    onDragOver={handleDragOver} 
+                    onDrop={handleDrop}
+                  >
+                    {modulosInjetados.length === 0 ? (
+                      <div style={{ color: 'rgba(255,255,255,0.15)', textAlign: 'center', pointerEvents: 'none' }}>
+                        <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '48px', marginBottom: '20px' }}></i>
+                        <h3>Arrasta os elementos do catálogo para aqui</h3>
+                      </div>
+                    ) : (
+                      modulosInjetados.map(m => (
+                        <div 
+                          key={m.uniqueId} 
+                          style={{ ...styles.canvasElement, left: m.x, top: m.y }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <i className={`fa-solid ${m.icon}`} style={{ color: 'var(--accent-primary)' }}></i>
+                            <span style={{ fontSize: '12px', fontWeight: '700' }}>{m.name}</span>
                           </div>
-                          <p style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '14px' }}>{m.desc}</p>
+                          <span style={{ fontSize: '10px', color: 'var(--accent-secondary)', display: 'block', marginTop: '5px' }}>● API ATIVA</span>
                           <button 
-                            onClick={() => injetarModulo(m)}
-                            disabled={isInjected}
-                            style={{ 
-                              width: '100%', 
-                              background: isInjected ? 'rgba(255,255,255,0.05)' : 'var(--accent-purple)', 
-                              color: isInjected ? 'var(--text-secondary)' : '#fff', 
-                              border: 'none', 
-                              padding: '10px', 
-                              borderRadius: '10px', 
-                              fontSize: '13px', 
-                              fontWeight: '600', 
-                              cursor: isInjected ? 'default' : 'pointer' 
-                            }}
+                            onClick={() => handleRemoveModule(m.uniqueId)}
+                            style={styles.btnRemoveElement}
                           >
-                            {isInjected ? 'Injetado e Ativo' : '+ Injetar na Malha'}
+                            Excluir
                           </button>
                         </div>
-                      );
-                    })}
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* PAINEL: CENTRAL MESTRE (CADASTRO E GERENCIAMENTO MULTICONTAS REAL) */}
-          {activeMenu === 'Central Mestre' && (
-            <div style={{ maxWidth: '900px' }}>
-              <div style={{ marginBottom: '40px' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-purple)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Identity Management</span>
-                <h1 style={{ fontSize: '36px', fontWeight: '800', letterSpacing: '-0.03em', marginTop: '6px' }}>Configuração de Perfil & Contas</h1>
-              </div>
+            {/* VIEW 3: CO-PILOT IA */}
+            {activeMenu === 'Co-Pilot IA' && (
+              <div style={{ width: '100%', maxWidth: '800px' }}>
+                <div style={{ marginBottom: '30px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>AI ASSISTANT</span>
+                  <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px' }}>Co-Pilot IA</h1>
+                </div>
 
-              {/* Tabela/Lista Real de Contas Vinculadas */}
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '28px', padding: '32px', marginBottom: '32px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <i className="fa-solid fa-id-card-clip" style={{ color: 'var(--accent-purple)' }}></i> Instâncias de Contas na Cripto-Malha
-                </h2>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {contas.map((c) => {
-                    const isSelected = c.id === contaAtual.id;
-                    return (
+                <div style={styles.chatContainer} className="glass-panel">
+                  <div style={styles.chatHistory}>
+                    {aiChats.map((chat, idx) => (
                       <div 
-                        key={c.id} 
-                        style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'space-between', 
-                          background: isSelected ? 'linear-gradient(90deg, rgba(123, 87, 255, 0.08) 0%, transparent 100%)' : 'rgba(255,255,255,0.01)', 
-                          border: isSelected ? '1px solid var(--accent-purple)' : '1px solid rgba(255,255,255,0.03)', 
-                          padding: '20px 24px', 
-                          borderRadius: '20px' 
+                        key={idx} 
+                        style={{
+                          ...styles.chatBubble,
+                          alignSelf: chat.role === 'user' ? 'flex-end' : 'flex-start',
+                          backgroundColor: chat.role === 'user' ? 'var(--accent-primary)' : 'rgba(255,255,255,0.03)',
+                          color: chat.role === 'user' ? '#000' : '#fff'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '18px' }}>
-                          <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: isSelected ? 'var(--accent-purple)' : '#231d3c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '700', boxShadow: isSelected ? '0 4px 14px rgba(123,87,255,0.2)' : 'none' }}>
-                            {c.avatar}
-                          </div>
-                          <div>
-                            <div style={{ fontSize: '15px', fontWeight: '600', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                              {c.nome} 
-                              {isSelected && <span style={{ fontSize: '10px', color: 'var(--accent-purple)', background: 'rgba(123, 87, 255, 0.15)', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>SESSÃO INICIADA</span>}
-                            </div>
-                            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px', display: 'flex', gap: '16px' }}>
-                              <span><i className="fa-solid fa-envelope" style={{ marginRight: '5px' }}></i> {c.email}</span>
-                              <span><i className="fa-solid fa-key" style={{ marginRight: '5px' }}></i> {c.hash}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          {isSelected ? (
-                            <span style={{ fontSize: '13px', color: '#10b981', fontWeight: '600', padding: '8px 16px', background: 'rgba(16, 185, 129, 0.08)', borderRadius: '12px' }}>{c.role}</span>
-                          ) : (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{c.role}</span>
-                              <button onClick={() => setContaAtual(c)} style={{ background: 'rgba(255,255,255,0.04)', color: '#fff', border: '1px solid rgba(255,255,255,0.05)', padding: '10px 18px', borderRadius: '12px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>Alternar Instância</button>
-                            </div>
-                          )}
-                        </div>
+                        {chat.msg}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Formulário Real e Estruturado de Cadastro */}
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '28px', padding: '32px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}><i className="fa-solid fa-user-plus" style={{ color: 'var(--accent-purple)', marginRight: '8px' }}></i> Vincular Novo Operador</h3>
-                <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '24px' }}>Adicione credenciais operacionais para liberar acessos segmentados à API do sistema.</p>
-                
-                <form onSubmit={handleCriarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                    <div>
-                      <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>Nome Completo do Usuário</label>
-                      <input type="text" placeholder="Ex: Taylor Chicago" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} style={{ width: '100%', background: '#0a0714', border: '1px solid rgba(123, 87, 255, 0.15)', borderRadius: '14px', padding: '16px', color: '#fff', fontSize: '14px', outline: 'none' }} />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>E-mail de Acesso Corporativo</label>
-                      <input type="email" placeholder="Ex: taylor@suporte.com" value={novoEmail} onChange={(e) => setNovoEmail(e.target.value)} style={{ width: '100%', background: '#0a0714', border: '1px solid rgba(123, 87, 255, 0.15)', borderRadius: '14px', padding: '16px', color: '#fff', fontSize: '14px', outline: 'none' }} />
-                    </div>
+                    ))}
                   </div>
 
-                  <div>
-                    <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '8px' }}>Nível de Hierarquia e Permissões</label>
-                    <select value={novaFuncao} onChange={(e) => setNovaFuncao(e.target.value)} style={{ width: '100%', background: '#0a0714', border: '1px solid rgba(123, 87, 255, 0.15)', borderRadius: '14px', padding: '16px', color: '#fff', fontSize: '14px', outline: 'none', cursor: 'pointer' }}>
-                      <option value="Premium Operator">Premium Operator (Acesso ao Canva e Logs de IA)</option>
-                      <option value="Sub-User Manager">Sub-User Manager (Leitura de Dashboards e Suporte)</option>
-                      <option value="Guest Support">Guest Support (Apenas Visualização Neural Estática)</option>
-                    </select>
+                  <div style={{ display: 'flex', gap: '12px', padding: '20px', borderTop: '1px solid var(--border-color)' }}>
+                    <input 
+                      type="text" 
+                      style={styles.chatInput} 
+                      placeholder="Pergunta-me qualquer coisa sobre a tua infraestrutura..." 
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSendAi()}
+                    />
+                    <button style={styles.primaryButton} onClick={handleSendAi}>Enviar</button>
                   </div>
-
-                  <button type="submit" style={{ width: '100%', background: 'transparent', color: '#fff', border: '1px dashed var(--accent-purple)', borderRadius: '14px', padding: '16px', fontWeight: '600', fontSize: '14px', cursor: 'pointer', textAlign: 'center', textDecoration: 'none' }}>
-                    + Gerar Chave de Acesso e Vincular Conta ao Ecossistema
-                  </button>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* PAINEL: CO-PILOT IA (LOGS DE IA E INTERAÇÃO) */}
-          {activeMenu === 'Co-Pilot IA' && (
-            <div style={{ maxWidth: '850px' }}>
-              <div style={{ marginBottom: '40px' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-purple)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>AI Core Engine</span>
-                <h1 style={{ fontSize: '36px', fontWeight: '800', letterSpacing: '-0.03em', marginTop: '6px' }}>Co-Pilot IA</h1>
-              </div>
-
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', marginBottom: '32px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px' }}>Prompt de Comando Estrutural</h3>
-                <div style={{ display: 'flex', gap: '16px' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Injete comandos diretos para a malha de IA (Ex: Otimizar rotas do Gateway)..." 
-                    value={aiPrompt} 
-                    onChange={(e) => setAiPrompt(e.target.value)}
-                    style={{ flex: 1, background: '#0a0714', border: '1px solid rgba(123, 87, 255, 0.15)', borderRadius: '14px', padding: '16px', color: '#fff', fontSize: '14px', outline: 'none' }} 
-                  />
-                  <button 
-                    onClick={() => {
-                      if(!aiPrompt.trim()) return;
-                      setAiLogs([...aiLogs, { time: new Date().toLocaleTimeString(), status: 'RUNNING', msg: `Executando diretriz: "${aiPrompt}"` }]);
-                      setAiPrompt('');
-                    }}
-                    style={{ background: 'var(--accent-purple)', color: '#fff', border: 'none', padding: '0 24px', borderRadius: '14px', fontWeight: '600', cursor: 'pointer' }}
-                  >
-                    Enviar
-                  </button>
                 </div>
               </div>
+            )}
 
-              <div style={{ background: '#07050d', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px' }}>
-                <h4 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--text-secondary)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Logs operacionais do Servidor Neural</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {aiLogs.map((log, index) => (
-                    <div key={index} style={{ fontFamily: 'monospace', fontSize: '13px', display: 'flex', gap: '16px', borderBottom: '1px solid rgba(255,255,255,0.02)', paddingBottom: '8px' }}>
-                      <span style={{ color: 'var(--text-secondary)' }}>[{log.time}]</span>
-                      <span style={{ color: log.status === 'SUCCESS' ? '#10b981' : log.status === 'ACTIVE' ? 'var(--accent-purple)' : '#f59e0b', fontWeight: '700' }}>{log.status}</span>
-                      <span style={{ color: '#e2e0e7' }}>{log.msg}</span>
-                    </div>
-                  ))}
+            {/* VIEW 4: SUPORTE NEURAL */}
+            {activeMenu === 'Suporte Neural' && (
+              <div style={{ width: '100%', maxWidth: '800px', textAlign: 'center' }}>
+                <i className="fa-solid fa-headset" style={{ fontSize: '48px', color: 'var(--accent-primary)', marginBottom: '20px' }}></i>
+                <h1 style={{ fontSize: '32px', fontWeight: '800' }}>Suporte Neural</h1>
+                <p style={{ color: 'var(--text-muted)', marginTop: '10px', maxWidth: '500px', margin: '15px auto', lineHeight: '1.6' }}>A tua instância encontra-se a funcionar em perfeitas condições. Quaisquer alertas de tráfego, faturamento ou API serão indicados em tempo real nesta central.</p>
+              </div>
+            )}
+
+            {/* VIEW 5: CENTRAL MESTRE (ROOT MODOS EXCLUSIVOS DO HENRY) */}
+            {activeMenu === 'Central Mestre' && (
+              <div style={{ width: '100%', maxWidth: '1000px' }}>
+                <div style={styles.rootBanner}>
+                  <h3 style={{ color: 'var(--accent-secondary)', fontWeight: '800' }}><i className="fa-solid fa-shield-halved"></i> MODO DIRETOR ATIVO</h3>
+                  <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>Tens controlo absoluto sobre as instâncias globais do Hapres.</p>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginTop: '30px' }}>
+                  <div style={styles.rootStatCard} className="glass-panel">
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Utilizadores Globais</div>
+                    <div style={{ fontSize: '28px', fontWeight: '800', marginTop: '5px' }}>1.452</div>
+                  </div>
+                  <div style={styles.rootStatCard} className="glass-panel">
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Faturamento Global</div>
+                    <div style={{ fontSize: '28px', fontWeight: '800', marginTop: '5px', color: 'var(--accent-secondary)' }}>R$ 140.842</div>
+                  </div>
+                  <div style={styles.rootStatCard} className="glass-panel">
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Aplicações em Produção</div>
+                    <div style={{ fontSize: '28px', fontWeight: '800', marginTop: '5px' }}>842</div>
+                  </div>
+                  <div style={styles.rootStatCard} className="glass-panel">
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Carga do Servidor</div>
+                    <div style={{ fontSize: '28px', fontWeight: '800', marginTop: '5px' }}>12%</div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* PAINEL: SUPORTE NEURAL */}
-          {activeMenu === 'Suporte Neural' && (
-            <div>
-              <div style={{ marginBottom: '40px' }}>
-                <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-purple)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Core Support Terminal</span>
-                <h1 style={{ fontSize: '36px', fontWeight: '800', letterSpacing: '-0.03em', marginTop: '6px' }}>Suporte Neural</h1>
-              </div>
-              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '40px', textAlignment: 'center', textAlign: 'center' }}>
-                <i className="fa-solid fa-brain" style={{ fontSize: '48px', color: 'var(--accent-purple)', marginBottom: '20px' }}></i>
-                <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px' }}>Canal de Comunicação Direto</h3>
-                <p style={{ color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto', fontSize: '14px', lineHeight: '1.6' }}>Sua instância está operando de forma saudável conectada à infraestrutura mestre da API. Requisições críticas abertas por operadores subordinados constarão listadas aqui.</p>
-              </div>
-            </div>
-          )}
-
-        </main>
-      </div>
-    </>
+          </main>
+        </div>
+      )}
+    </div>
   );
 }
+
+// --- ESTILOS AUXILIARES ---
+const styles = {
+  fullscreenCenter: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    width: '100vw',
+    padding: '24px'
+  },
+  glassCard: {
+    background: 'var(--bg-card)',
+    backdropFilter: 'blur(30px)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '24px',
+    padding: '48px',
+    width: '100%',
+    maxWidth: '600px',
+    boxShadow: '0 30px 100px rgba(0,0,0,0.8)',
+    textAlign: 'center'
+  },
+  indicatorContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    gap: '8px',
+    margin: '30px 0'
+  },
+  dot: {
+    height: '10px',
+    borderRadius: '5px',
+    transition: 'all 0.3s ease'
+  },
+  primaryButton: {
+    background: 'var(--accent-primary)',
+    color: '#000',
+    fontWeight: '700',
+    padding: '16px 32px',
+    border: 'none',
+    borderRadius: '12px',
+    fontSize: '15px',
+    cursor: 'pointer',
+    transition: 'transform 0.2s',
+  },
+  formGroup: {
+    marginBottom: '20px',
+    textAlign: 'left'
+  },
+  label: {
+    display: 'block',
+    fontSize: '12px',
+    color: 'var(--text-muted)',
+    marginBottom: '8px',
+    textTransform: 'uppercase',
+    letterSpacing: '1px'
+  },
+  input: {
+    width: '100%',
+    background: 'rgba(0,0,0,0.5)',
+    border: '1px solid var(--border-color)',
+    padding: '16px',
+    borderRadius: '12px',
+    color: '#fff',
+    fontSize: '14px',
+    outline: 'none',
+  },
+  themeCard: {
+    background: 'var(--bg-card)',
+    borderRadius: '20px',
+    padding: '30px',
+    cursor: 'pointer',
+    textAlign: 'center',
+    transition: 'all 0.3s'
+  },
+  progressBarContainer: {
+    width: '100%',
+    height: '6px',
+    background: 'rgba(255,255,255,0.05)',
+    borderRadius: '3px',
+    marginTop: '30px',
+    overflow: 'hidden'
+  },
+  progressBarFill: {
+    height: '100%',
+    background: 'var(--accent-primary)',
+    transition: 'width 0.2s linear'
+  },
+  terminalConsole: {
+    background: 'rgba(0,0,0,0.6)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '12px',
+    padding: '24px',
+    fontFamily: 'var(--font-mono)',
+    fontSize: '12px',
+    textAlign: 'left',
+    marginTop: '30px',
+    color: '#10b981',
+    maxHeight: '180px',
+    overflowY: 'auto'
+  },
+  dashboardContainer: {
+    display: 'grid',
+    gridTemplateColumns: '280px 1fr',
+    height: '100vh',
+    overflow: 'hidden'
+  },
+  sidebar: {
+    background: '#07050d',
+    borderRight: '1px solid var(--border-color)',
+    padding: '40px 24px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between'
+  },
+  navItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '14px',
+    padding: '14px 18px',
+    borderRadius: '14px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: '600',
+    transition: 'all 0.2s'
+  },
+  sidebarProfile: {
+    background: 'rgba(255,255,255,0.02)',
+    padding: '16px',
+    borderRadius: '16px',
+    border: '1px solid rgba(255,255,255,0.02)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  },
+  workspace: {
+    padding: '48px 56px',
+    overflowY: 'auto',
+    background: 'radial-gradient(circle at 50% 0%, #15102a 0%, var(--bg-main) 60%)'
+  },
+  centralMobileGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: '24px',
+    width: '100%',
+    maxWidth: '750px',
+    marginTop: '40px'
+  },
+  bentoTile: {
+    padding: '40px',
+    textAlign: 'center',
+    cursor: 'pointer',
+    transition: 'all 0.3s'
+  },
+  canvaLayout: {
+    display: 'grid',
+    gridTemplateColumns: '320px 1fr',
+    height: '580px',
+    border: '1px solid var(--border-color)',
+    borderRadius: '24px',
+    overflow: 'hidden'
+  },
+  canvaSidebar: {
+    background: 'rgba(5, 5, 8, 0.95)',
+    padding: '24px',
+    borderRight: '1px solid var(--border-color)',
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  inputSearch: {
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid var(--border-color)',
+    padding: '14px',
+    borderRadius: '10px',
+    color: '#fff',
+    outline: 'none',
+    marginBottom: '20px'
+  },
+  catalogGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '12px',
+    overflowY: 'auto'
+  },
+  draggableCard: {
+    background: 'rgba(255,255,255,0.01)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '12px',
+    padding: '16px 12px',
+    textAlign: 'center',
+    cursor: 'grab',
+    userSelect: 'none'
+  },
+  canvaWorkspace: {
+    background: 'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)',
+    backgroundSize: '24px 24px',
+    backgroundColor: '#09090c',
+    position: 'relative',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  canvasElement: {
+    position: 'absolute',
+    background: 'rgba(255,255,255,0.06)',
+    border: '1px solid var(--accent-primary)',
+    padding: '16px',
+    borderRadius: '14px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+    minWidth: '150px'
+  },
+  btnRemoveElement: {
+    background: 'rgba(239, 68, 68, 0.1)',
+    color: '#ef4444',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '4px 8px',
+    fontSize: '11px',
+    cursor: 'pointer',
+    marginTop: '10px',
+    width: '100%'
+  },
+  chatContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '500px',
+    borderRadius: '24px',
+    overflow: 'hidden'
+  },
+  chatHistory: {
+    flexGrow: 1,
+    padding: '24px',
+    overflowY: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '16px'
+  },
+  chatBubble: {
+    maxWidth: '80%',
+    padding: '14px 20px',
+    borderRadius: '16px',
+    fontSize: '14px',
+    lineHeight: '1.5'
+  },
+  chatInput: {
+    flexGrow: 1,
+    background: 'rgba(0,0,0,0.5)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '12px',
+    padding: '14px',
+    color: '#fff',
+    outline: 'none'
+  },
+  rootBanner: {
+    background: 'linear-gradient(90deg, rgba(16,185,129,0.08) 0%, transparent 100%)',
+    borderLeft: '4px solid var(--accent-secondary)',
+    padding: '20px 24px',
+    borderRadius: '0 16px 16px 0'
+  },
+  rootStatCard: {
+    padding: '24px',
+    borderRadius: '16px'
+  }
+};
