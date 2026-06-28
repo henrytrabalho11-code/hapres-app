@@ -143,18 +143,18 @@ export default function App() {
   // Escolha Cromática Dinâmica (Chroma Forge)
   const themes = {
     luxury: {
-      '--bg-main': '#030209',
-      '--bg-card': 'rgba(15, 12, 33, 0.65)',
-      '--border-color': 'rgba(197, 160, 89, 0.1)',
-      '--accent-primary': '#c5a059', // Ouro Fino
+      '--bg-main': '#050311', // Roxo escuro profundo / Noturno nativo
+      '--bg-card': 'rgba(25, 18, 55, 0.45)', // Glassmorphism de baixa opacidade
+      '--border-color': 'rgba(197, 160, 89, 0.15)',
+      '--accent-primary': '#8b5cf6', // Roxo Neon de Viagens
       '--accent-secondary': '#10b981', // Esmeralda
-      '--accent-glow': 'rgba(197, 160, 89, 0.04)',
+      '--accent-glow': 'rgba(139, 92, 246, 0.15)',
       '--text-main': '#f3f4f6',
-      '--text-muted': '#6b697e'
+      '--text-muted': '#8e8ca2'
     },
     minimalist: {
       '--bg-main': '#020202',
-      '--bg-card': 'rgba(18, 18, 20, 0.8)',
+      '--bg-card': 'rgba(255, 255, 255, 0.03)',
       '--border-color': 'rgba(255, 255, 255, 0.05)',
       '--accent-primary': '#e5e7eb', // Platina
       '--accent-secondary': '#4b5563',
@@ -164,18 +164,18 @@ export default function App() {
     },
     neon: {
       '--bg-main': '#010004',
-      '--bg-card': 'rgba(10, 4, 32, 0.75)',
-      '--border-color': 'rgba(255, 0, 85, 0.15)',
+      '--bg-card': 'rgba(255, 0, 85, 0.05)',
+      '--border-color': 'rgba(255, 0, 85, 0.25)',
       '--accent-primary': '#ff0055', // Rosa Cyberpunk
       '--accent-secondary': '#00ffcc', // Ciano Neon
-      '--accent-glow': 'rgba(255, 0, 85, 0.03)',
+      '--accent-glow': 'rgba(255, 0, 85, 0.05)',
       '--text-main': '#ffffff',
       '--text-muted': '#7c3aed'
     },
     sapphire: {
       '--bg-main': '#00020a',
-      '--bg-card': 'rgba(3, 14, 40, 0.7)',
-      '--border-color': 'rgba(59, 130, 246, 0.15)',
+      '--bg-card': 'rgba(59, 130, 246, 0.05)',
+      '--border-color': 'rgba(59, 130, 246, 0.2)',
       '--accent-primary': '#3b82f6', // Safira Real
       '--accent-secondary': '#f59e0b', // Âmbar
       '--accent-glow': 'rgba(59, 130, 246, 0.03)',
@@ -769,7 +769,7 @@ export default function App() {
                       <div style={{ color: 'rgba(255,255,255,0.1)', textAlign: 'center', pointerEvents: 'none' }}>
                         <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '48px', marginBottom: '16px', color: 'var(--accent-primary)' }}></i>
                         <h3 style={{ fontSize: '18px', fontWeight: '700' }}>Malha de Criação Vazia</h3>
-                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Arrasta os elements do catálogo lateral para aqui</p>
+                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Arrasta os elementos do catálogo lateral para aqui</p>
                       </div>
                     ) : (
                       modulosInjetados.map(m => (
@@ -809,12 +809,12 @@ export default function App() {
                           {/* --- COMPONENTE REAL: SPORT BOT PRO --- */}
                           {m.id === 'mod_futebol' && (
                             <div style={{ fontSize: '12px', color: '#fff' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '6px', marginBottom: '6px' }}>
-                                <span style={{ fontSize: '11px' }}>Real Madrid</span>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '8px', marginBottom: '8px' }}>
+                                <span>Real Madrid</span>
                                 <span style={{ fontWeight: '800', color: 'var(--accent-primary)' }}>2</span>
                               </div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '6px' }}>
-                                <span style={{ fontSize: '11px' }}>Barcelona</span>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '8px' }}>
+                                <span>Barcelona</span>
                                 <span style={{ fontWeight: '800', color: 'var(--accent-primary)' }}>1</span>
                               </div>
                               <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>
@@ -833,7 +833,7 @@ export default function App() {
                                   <strong>Evangelho:</strong> "Vós sois o sal da terra e a luz do mundo."
                                 </div>
                                 <div style={{ marginTop: '10px' }}>
-                                  <div style={{ fontWeight: '700', marginBottom: '4px', fontSize: '9px' }}>EXAME DE CONSCIÊNCIA:</div>
+                                  <div style={{ fontWeight: '700', marginBottom: '4px' }}>Exame de Consciência:</div>
                                   <div style={{ display: 'flex', gap: '6px' }}>
                                     <button onClick={() => setConscienciaAnswer('realizado')} style={{ flex: 1, padding: '4px', background: conscienciaAnswer === 'realizado' ? 'var(--accent-secondary)' : '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '9px', fontWeight: '700' }}>Realizado</button>
                                     <button onClick={() => setConscienciaAnswer('pendente')} style={{ flex: 1, padding: '4px', background: conscienciaAnswer === 'pendente' ? 'var(--accent-primary)' : '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '9px', fontWeight: '700' }}>Pendente</button>
