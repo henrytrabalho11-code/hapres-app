@@ -24,12 +24,17 @@ export default function App() {
   // Navegação do Dashboard
   const [activeMenu, setActiveMenu] = useState('Overview'); // Overview, Super Canva, Co-Pilot IA, Suporte Neural, Perfil, Configurações, Manual, Central Mestre
 
-  // Configurações do Sistema
+  // Configurações do Sistema Expandidas (Luxo Tecnológico)
   const [apiKeyOpenAI, setApiKeyOpenAI] = useState('sk-proj-••••••••••••••••34a1');
   const [apiKeyAnthropic, setApiKeyAnthropic] = useState('sk-ant-••••••••••••••••92b3');
   const [sslActive, setSslActive] = useState(true);
   const [serverRegion, setServerRegion] = useState('us-east-1');
-  const [dbStatus] = useState('Conectado');
+  const [webhookUrl, setWebhookUrl] = useState('https://api.hapres.com/v1/webhook/receiver_01');
+  const [backupSchedule, setBackupSchedule] = useState('daily'); // daily, weekly, manual
+  const [aiTemperature, setAiTemperature] = useState(0.7);
+  const [rateLimit, setRateLimit] = useState(60); // req/min
+  const [customDomain, setCustomDomain] = useState('app.henryserpa.com');
+  const [smtpHost, setSmtpHost] = useState('smtp.sovereign.io');
 
   // Gestão de Multi-Contas (Perfil)
   const [contas, setContas] = useState([
@@ -53,7 +58,7 @@ export default function App() {
 
   // Estados dos Componentes Funcionais do Canva
   const [pixAmount, setPixAmount] = useState('97.00');
-  const [pixStatus] = useState('Aguardando pagamento...');
+  const [pixStatus, setPixStatus] = useState('Aguardando pagamento...');
   const [conscienciaAnswer, setConscienciaAnswer] = useState(null);
 
   // Inteligência Artificial (Co-Pilot IA)
@@ -317,7 +322,7 @@ export default function App() {
       {stage === 'overboarding' && (
         <div style={styles.fullscreenCenter}>
           <div style={styles.glassCard} className="glass-panel">
-            <span style={styles.badgeMono}>MÓDULO DE ENTRADA</span>
+            <span style={styles.badgeMono}>SOVEREIGN PLATFORM // STAGE 01</span>
             <h1 style={styles.overboardTitle}>{overboards[overboardIndex].title}</h1>
             <p style={styles.overboardText}>{overboards[overboardIndex].text}</p>
             
