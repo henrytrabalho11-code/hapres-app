@@ -22,7 +22,14 @@ export default function App() {
   const [tourStep, setTourStep] = useState(0);
 
   // Navegação do Dashboard
-  const [activeMenu, setActiveMenu] = useState('Overview'); // Overview, Super Canva, Co-Pilot IA, Suporte Neural, Perfil, Central Mestre
+  const [activeMenu, setActiveMenu] = useState('Overview'); // Overview, Super Canva, Co-Pilot IA, Suporte Neural, Perfil, Configurações, Manual, Central Mestre
+
+  // Configurações do Sistema
+  const [apiKeyOpenAI, setApiKeyOpenAI] = useState('sk-proj-••••••••••••••••34a1');
+  const [apiKeyAnthropic, setApiKeyAnthropic] = useState('sk-ant-••••••••••••••••92b3');
+  const [sslActive, setSslActive] = useState(true);
+  const [serverRegion, setServerRegion] = useState('us-east-1');
+  const [dbStatus] = useState('Conectado');
 
   // Gestão de Multi-Contas (Perfil)
   const [contas, setContas] = useState([
@@ -46,7 +53,7 @@ export default function App() {
 
   // Estados dos Componentes Funcionais do Canva
   const [pixAmount, setPixAmount] = useState('97.00');
-  const [pixStatus, setPixStatus] = useState('Aguardando pagamento...');
+  const [pixStatus] = useState('Aguardando pagamento...');
   const [conscienciaAnswer, setConscienciaAnswer] = useState(null);
 
   // Inteligência Artificial (Co-Pilot IA)
@@ -97,11 +104,11 @@ export default function App() {
 
     const logs = [
       "Inicializando ambiente de segurança isolado...",
-      "Alocando servidores na nuvem soberana...",
-      "Injetando inteligência artificial (Claude/GPT)...",
-      "Compilando componentes visuais em tempo real...",
-      "Sincronizando bancos de dados isolados...",
-      "Gerando PWA instalável de alta fidelidade..."
+      "Alocando servidores na nuvem soberana de alta performance...",
+      "Injetando inteligência artificial nativa (Claude 3.5 Sonnet / GPT-4o)...",
+      "Compilando componentes de design de luxo tecnológico...",
+      "Sincronizando bancos de dados em tempo real...",
+      "Gerando PWA instalável com service-workers ativos..."
     ];
 
     let currentLogIndex = 0;
@@ -119,7 +126,7 @@ export default function App() {
         setForgingLogs((prevLogs) => [...prevLogs, logs[currentLogIndex]]);
         currentLogIndex++;
       }
-    }, 200);
+    }, 250);
 
     return () => clearInterval(interval);
   }, [stage]);
@@ -127,44 +134,44 @@ export default function App() {
   // Escolha Cromática Dinâmica (Chroma Forge)
   const themes = {
     luxury: {
-      '--bg-main': '#06040a',
-      '--bg-card': 'rgba(18, 14, 30, 0.75)',
-      '--border-color': 'rgba(197, 160, 89, 0.15)',
-      '--accent-primary': '#c5a059', // Ouro
+      '--bg-main': '#020204',
+      '--bg-card': '#0a0a0d',
+      '--border-color': 'rgba(197, 160, 89, 0.08)',
+      '--accent-primary': '#c5a059', // Ouro Fino
       '--accent-secondary': '#10b981', // Esmeralda
-      '--accent-glow': 'rgba(197, 160, 89, 0.08)',
-      '--text-main': '#ffffff',
-      '--text-muted': '#948fa6'
+      '--accent-glow': 'rgba(197, 160, 89, 0.04)',
+      '--text-main': '#f3f4f6',
+      '--text-muted': '#787780'
     },
     minimalist: {
-      '--bg-main': '#080808',
-      '--bg-card': 'rgba(28, 28, 28, 0.8)',
-      '--border-color': 'rgba(255, 255, 255, 0.08)',
-      '--accent-primary': '#f3f4f6', // Platina/Branco
-      '--accent-secondary': '#6b7280', // Cinza
-      '--accent-glow': 'rgba(255, 255, 255, 0.03)',
-      '--text-main': '#ffffff',
-      '--text-muted': '#9ca3af'
+      '--bg-main': '#050505',
+      '--bg-card': '#0c0c0e',
+      '--border-color': 'rgba(255, 255, 255, 0.05)',
+      '--accent-primary': '#e5e7eb', // Platina
+      '--accent-secondary': '#6b7280',
+      '--accent-glow': 'rgba(255, 255, 255, 0.02)',
+      '--text-main': '#f9fafb',
+      '--text-muted': '#6b7280'
     },
     neon: {
-      '--bg-main': '#02000a',
-      '--bg-card': 'rgba(20, 10, 40, 0.6)',
-      '--border-color': 'rgba(255, 0, 85, 0.25)',
-      '--accent-primary': '#ff0055', // Rosa Neon
+      '--bg-main': '#010005',
+      '--bg-card': '#05020f',
+      '--border-color': 'rgba(255, 0, 85, 0.15)',
+      '--accent-primary': '#ff0055', // Rosa Cyberpunk
       '--accent-secondary': '#00ffcc', // Ciano Neon
-      '--accent-glow': 'rgba(255, 0, 85, 0.08)',
+      '--accent-glow': 'rgba(255, 0, 85, 0.03)',
       '--text-main': '#ffffff',
-      '--text-muted': '#a78bfa'
+      '--text-muted': '#8b5cf6'
     },
     sapphire: {
-      '--bg-main': '#000814',
-      '--bg-card': 'rgba(10, 25, 50, 0.75)',
-      '--border-color': 'rgba(59, 130, 246, 0.2)',
+      '--bg-main': '#00040d',
+      '--bg-card': '#010b1a',
+      '--border-color': 'rgba(59, 130, 246, 0.15)',
       '--accent-primary': '#3b82f6', // Safira Real
       '--accent-secondary': '#f59e0b', // Âmbar
-      '--accent-glow': 'rgba(59, 130, 246, 0.08)',
-      '--text-main': '#ffffff',
-      '--text-muted': '#93c5fd'
+      '--accent-glow': 'rgba(59, 130, 246, 0.03)',
+      '--text-main': '#f1f5f9',
+      '--text-muted': '#64748b'
     }
   };
 
@@ -188,7 +195,7 @@ export default function App() {
     const item = JSON.parse(itemData);
 
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - 150; // Centraliza o widget no drop
+    const x = e.clientX - rect.left - 140; // Centraliza o elemento no drop
     const y = e.clientY - rect.top - 80;
 
     const novoModulo = {
@@ -205,7 +212,7 @@ export default function App() {
     setModulosInjetados(modulosInjetados.filter(m => m.uniqueId !== uniqueId));
   };
 
-  // Envio de mensagem para a IA e controle automático de elementos
+  // Envio de mensagem para a IA e controle de elementos
   const handleSendAi = () => {
     if (!aiPrompt.trim()) return;
     const cleanPrompt = aiPrompt.toLowerCase();
@@ -217,7 +224,7 @@ export default function App() {
     setAiPrompt('');
 
     setTimeout(() => {
-      // Simulação de IA executora adicionando módulos no Canva
+      // IA executora adicionando módulos de forma autônoma
       if (cleanPrompt.includes('adicionar') || cleanPrompt.includes('injetar') || cleanPrompt.includes('colocar')) {
         let moduloEncontrado = null;
         if (cleanPrompt.includes('pix')) moduloEncontrado = modulosDisponiveis.find(m => m.id === 'mod_pix');
@@ -230,33 +237,33 @@ export default function App() {
           const novoModulo = {
             ...moduloEncontrado,
             uniqueId: Date.now(),
-            x: 100 + Math.random() * 200,
-            y: 100 + Math.random() * 150
+            x: 80 + Math.random() * 200,
+            y: 80 + Math.random() * 150
           };
           setModulosInjetados((prev) => [...prev, novoModulo]);
           setAiLogs([
             ...newChat,
-            { role: 'system', msg: `Compreendido perfeitamente. Acabei de injetar o modulo funcional "${moduloEncontrado.name}" diretamente na malha do teu Super Canva. Podes visualizar e reposicionar o componente agora.` }
+            { role: 'system', msg: `Entendido perfeitamente. Acabei de mapear e injetar o módulo funcional "${moduloEncontrado.name}" diretamente nas coordenadas do teu Canva. Ele já está operacional e sincronizado.` }
           ]);
           return;
         }
       }
 
-      // Respostas matemáticas e de suporte livre requisitadas no manual
+      // Respostas matemáticas requisitadas no manual
       if (cleanPrompt.includes('1+1') || cleanPrompt.includes('1 + 1')) {
         setAiLogs([
           ...newChat,
-          { role: 'system', msg: 'Análise de cálculo matemático básica concluída com sucesso: 1 + 1 é igual a 2. Desejas aplicar alguma otimização de faturamento com base nessa métrica?' }
+          { role: 'system', msg: 'Análise matemática elementar concluída: 1 + 1 é igual a 2. Desejas aplicar alguma otimização de faturamento ou microsserviço com base neste cálculo?' }
         ]);
         return;
       }
 
-      // Resposta padrão inteligente
+      // Resposta padrão
       setAiLogs([
         ...newChat,
-        { role: 'system', msg: `Sovereign Core processou a diretriz: "${aiPrompt}". Sincronização de nós e chaves de segurança operando em 100% de estabilidade.` }
+        { role: 'system', msg: `Sovereign Core processou a tua instrução: "${aiPrompt}". A sincronizar nós de rede e barramento de dados seguros.` }
       ]);
-    }, 800);
+    }, 700);
   };
 
   // Gestão de Multi-Contas (Adicionar Perfil)
@@ -303,23 +310,23 @@ export default function App() {
   );
 
   return (
-    <div style={{ ...getThemeStyles(), minHeight: '100vh', backgroundColor: 'var(--bg-main)', color: 'var(--text-main)', transition: 'all 0.5s ease' }}>
+    <div style={{ ...getThemeStyles(), minHeight: '100vh', backgroundColor: 'var(--bg-main)', color: 'var(--text-main)', transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
       {/* --- ETAPA 1: OVERBOARDING COMPLETO --- */}
       {stage === 'overboarding' && (
         <div style={styles.fullscreenCenter}>
           <div style={styles.glassCard} className="glass-panel">
-            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>MÓDULO DE ENTRADA</span>
-            <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '15px', marginBottom: '20px', letterSpacing: '-1px' }}>{overboards[overboardIndex].title}</h1>
-            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', fontSize: '16px', marginBottom: '40px' }}>{overboards[overboardIndex].text}</p>
+            <span style={styles.badgeMono}>MÓDULO DE ENTRADA</span>
+            <h1 style={styles.overboardTitle}>{overboards[overboardIndex].title}</h1>
+            <p style={styles.overboardText}>{overboards[overboardIndex].text}</p>
             
             <div style={styles.indicatorContainer}>
               {overboards.map((_, idx) => (
                 <div key={idx} style={{
                   ...styles.dot,
-                  backgroundColor: idx === overboardIndex ? 'var(--accent-primary)' : 'rgba(255,255,255,0.1)',
-                  width: idx === overboardIndex ? '30px' : '10px'
+                  backgroundColor: idx === overboardIndex ? 'var(--accent-primary)' : 'rgba(255,255,255,0.05)',
+                  width: idx === overboardIndex ? '24px' : '6px'
                 }} />
               ))}
             </div>
@@ -332,9 +339,10 @@ export default function App() {
       {/* --- ETAPA 2: IDENTITY FORGE (CADASTRO EXIGIDO) --- */}
       {stage === 'register' && (
         <div style={styles.fullscreenCenter}>
-          <form style={{ ...styles.glassCard, maxWidth: '500px' }} onSubmit={handleRegister} className="glass-panel">
-            <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '10px', letterSpacing: '-1px' }}>Identity Forge</h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '14px' }}>Cria a tua identidade mestre e gera as tuas chaves lógicas de segurança.</p>
+          <form style={{ ...styles.glassCard, maxWidth: '480px' }} onSubmit={handleRegister} className="glass-panel">
+            <span style={styles.badgeMono}>SECURE PROTOCOL</span>
+            <h1 style={{ ...styles.overboardTitle, fontSize: '28px', marginBottom: '8px' }}>Identity Forge</h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '32px', fontSize: '13px', lineHeight: '1.5' }}>Cria a tua identidade mestre e gera as tuas chaves lógicas de segurança.</p>
 
             <div style={styles.formGroup}>
               <label style={styles.label}>Nome Completo</label>
@@ -351,7 +359,7 @@ export default function App() {
               <input type="email" style={styles.input} placeholder="henryserpa11@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
 
-            <button type="submit" style={{ ...styles.primaryButton, width: '100%', marginTop: '20px' }}>Forjar Instância</button>
+            <button type="submit" style={{ ...styles.primaryButton, width: '100%', marginTop: '16px' }}>Forjar Instância</button>
           </form>
         </div>
       )}
@@ -360,34 +368,34 @@ export default function App() {
       {stage === 'plans' && (
         <div style={styles.fullscreenCenter}>
           <div style={{ ...styles.glassCard, maxWidth: '850px', width: '100%' }} className="glass-panel">
-            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>MUTAÇÃO DE RECURSOS</span>
-            <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '40px', textAlign: 'center' }}>Escolhe o teu Nível de Permissão</h1>
+            <span style={styles.badgeMono}>PRICING TIERS</span>
+            <h1 style={{ ...styles.overboardTitle, fontSize: '32px', marginBottom: '40px' }}>Nível de Permissão</h1>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
-              <div style={{ background: 'rgba(0,0,0,0.2)', padding: '30px', borderRadius: '20px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div style={{ background: 'rgba(0,0,0,0.4)', padding: '30px', borderRadius: '16px', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textAlign: 'left' }}>
                 <div>
-                  <h3 style={{ fontSize: '20px', fontWeight: '700' }}>Essence (Free)</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '10px' }}>Para testes rápidos e fluxos estáticos básicos.</p>
-                  <ul style={{ listStyle: 'none', padding: 0, marginTop: '20px', fontSize: '14px' }}>
-                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> 2 Módulos no Canva</li>
-                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Templates Standard</li>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700' }}>Essence (Free)</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '8px', lineHeight: '1.5' }}>Para testes rápidos e fluxos estáticos básicos.</p>
+                  <ul style={{ listStyle: 'none', padding: 0, marginTop: '24px', fontSize: '13px' }}>
+                    <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px', fontSize: '11px' }}></i> 2 Módulos no Canva</li>
+                    <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px', fontSize: '11px' }}></i> Templates Standard</li>
                   </ul>
                 </div>
-                <button style={{ ...styles.primaryButton, background: 'transparent', color: '#fff', border: '1px solid var(--border-color)', marginTop: '30px' }} onClick={() => setStage('chroma')}>Continuar com Free</button>
+                <button style={{ ...styles.primaryButton, background: 'transparent', color: '#fff', border: '1px solid var(--border-color)', marginTop: '32px' }} onClick={() => setStage('chroma')}>Continuar com Free</button>
               </div>
 
-              <div style={{ background: 'rgba(197, 160, 89, 0.03)', padding: '30px', borderRadius: '20px', border: '2px solid var(--accent-primary)', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <span style={{ position: 'absolute', top: '-12px', right: '20px', background: 'var(--accent-primary)', color: '#000', padding: '3px 12px', borderRadius: '20px', fontSize: '10px', fontWeight: '800' }}>RECOMENDADO</span>
+              <div style={{ background: 'var(--accent-glow)', padding: '30px', borderRadius: '16px', border: '1px solid var(--accent-primary)', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textAlign: 'left' }}>
+                <span style={{ position: 'absolute', top: '-10px', right: '20px', background: 'var(--accent-primary)', color: '#000', padding: '2px 10px', borderRadius: '4px', fontSize: '9px', fontWeight: '800', fontFamily: 'var(--font-mono)' }}>RECOMENDADO</span>
                 <div>
-                  <h3 style={{ fontSize: '22px', fontWeight: '700', color: 'var(--accent-primary)' }}>SOVEREIGN PRO</h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '10px' }}>Acesso ilimitado ao ecossistema global, inteligência artificial avançada e publicação nativa.</p>
-                  <ul style={{ listStyle: 'none', padding: 0, marginTop: '20px', fontSize: '14px' }}>
-                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Todos os Módulos Omni-API</li>
-                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Chroma Forge Expandido</li>
-                    <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> IA Claude/GPT Executora 24/7</li>
+                  <h3 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--accent-primary)' }}>SOVEREIGN PRO</h3>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginTop: '8px', lineHeight: '1.5' }}>Acesso ilimitado ao ecossistema global, inteligência artificial avançada e publicação nativa.</p>
+                  <ul style={{ listStyle: 'none', padding: 0, marginTop: '24px', fontSize: '13px' }}>
+                    <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px', fontSize: '11px' }}></i> Todos os Módulos Omni-API</li>
+                    <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px', fontSize: '11px' }}></i> Chroma Forge Expandido</li>
+                    <li style={{ marginBottom: '12px', display: 'flex', alignItems: 'center' }}><i className="fa-solid fa-check" style={{ color: 'var(--accent-primary)', marginRight: '10px', fontSize: '11px' }}></i> IA Claude/GPT Executora 24/7</li>
                   </ul>
                 </div>
-                <button style={{ ...styles.primaryButton, marginTop: '30px' }} onClick={() => setStage('chroma')}>Liberar Acesso Pro</button>
+                <button style={{ ...styles.primaryButton, marginTop: '32px' }} onClick={() => setStage('chroma')}>Liberar Acesso Pro</button>
               </div>
             </div>
           </div>
@@ -398,44 +406,44 @@ export default function App() {
       {stage === 'chroma' && (
         <div style={styles.fullscreenCenter}>
           <div style={{ ...styles.glassCard, maxWidth: '900px', width: '100%', textAlign: 'center' }} className="glass-panel">
-            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>IDENTIDADE VISUAL</span>
-            <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '40px' }}>Chroma Forge</h1>
+            <span style={styles.badgeMono}>CORE ASSIGNMENT</span>
+            <h1 style={{ ...styles.overboardTitle, fontSize: '32px', marginBottom: '40px' }}>Chroma Forge</h1>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '40px' }}>
               <div 
-                style={{ ...styles.themeCard, border: activeTheme === 'luxury' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)', boxShadow: '0 8px 32px var(--accent-glow)' }}
+                style={{ ...styles.themeCard, border: activeTheme === 'luxury' ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)', boxShadow: '0 8px 32px var(--accent-glow)', background: activeTheme === 'luxury' ? 'var(--accent-glow)' : 'transparent' }}
                 onClick={() => setActiveTheme('luxury')}
               >
-                <i className="fa-solid fa-crown" style={{ fontSize: '24px', color: '#c5a059', marginBottom: '15px' }}></i>
-                <h3>High-Luxury</h3>
-                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Ouro, Esmeralda & Safira</p>
+                <i className="fa-solid fa-crown" style={{ fontSize: '20px', color: '#c5a059', marginBottom: '12px' }}></i>
+                <h3 style={{ fontSize: '14px', fontWeight: '700' }}>High-Luxury</h3>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Ouro, Esmeralda & Safira</p>
               </div>
 
               <div 
-                style={{ ...styles.themeCard, border: activeTheme === 'minimalist' ? '2px solid #fff' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(255,255,255,0.04)' }}
+                style={{ ...styles.themeCard, border: activeTheme === 'minimalist' ? '1px solid #fff' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(255,255,255,0.04)', background: activeTheme === 'minimalist' ? 'rgba(255,255,255,0.02)' : 'transparent' }}
                 onClick={() => setActiveTheme('minimalist')}
               >
-                <i className="fa-solid fa-feather" style={{ fontSize: '24px', color: '#f3f4f6', marginBottom: '15px' }}></i>
-                <h3>Minimalist</h3>
-                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Branco, Carbono & Cinzas</p>
+                <i className="fa-solid fa-feather" style={{ fontSize: '20px', color: '#f3f4f6', marginBottom: '12px' }}></i>
+                <h3 style={{ fontSize: '14px', fontWeight: '700' }}>Minimalist</h3>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Branco, Carbono & Cinzas</p>
               </div>
 
               <div 
-                style={{ ...styles.themeCard, border: activeTheme === 'neon' ? '2px solid #ff0055' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(255,0,85,0.08)' }}
+                style={{ ...styles.themeCard, border: activeTheme === 'neon' ? '1px solid #ff0055' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(255,0,85,0.08)', background: activeTheme === 'neon' ? 'rgba(255,0,85,0.02)' : 'transparent' }}
                 onClick={() => setActiveTheme('neon')}
               >
-                <i className="fa-solid fa-bolt" style={{ fontSize: '24px', color: '#ff0055', marginBottom: '15px' }}></i>
-                <h3>Vibrant Neon</h3>
-                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Cores intensas & criativas</p>
+                <i className="fa-solid fa-bolt" style={{ fontSize: '20px', color: '#ff0055', marginBottom: '12px' }}></i>
+                <h3 style={{ fontSize: '14px', fontWeight: '700' }}>Vibrant Neon</h3>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Cores intensas & criativas</p>
               </div>
 
               <div 
-                style={{ ...styles.themeCard, border: activeTheme === 'sapphire' ? '2px solid #3b82f6' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(59,130,246,0.08)' }}
+                style={{ ...styles.themeCard, border: activeTheme === 'sapphire' ? '1px solid #3b82f6' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(59,130,246,0.08)', background: activeTheme === 'sapphire' ? 'rgba(59,130,246,0.02)' : 'transparent' }}
                 onClick={() => setActiveTheme('sapphire')}
               >
-                <i className="fa-solid fa-gem" style={{ fontSize: '24px', color: '#3b82f6', marginBottom: '15px' }}></i>
-                <h3>Sapphire</h3>
-                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Safira Real & Âmbar</p>
+                <i className="fa-solid fa-gem" style={{ fontSize: '20px', color: '#3b82f6', marginBottom: '12px' }}></i>
+                <h3 style={{ fontSize: '14px', fontWeight: '700' }}>Sapphire</h3>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>Safira Real & Âmbar</p>
               </div>
             </div>
 
@@ -448,11 +456,11 @@ export default function App() {
       {stage === 'forging' && (
         <div style={styles.fullscreenCenter}>
           <div style={{ ...styles.glassCard, maxWidth: '600px', width: '100%', textAlign: 'center' }} className="glass-panel">
-            <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '10px' }}>Compilar Instância</h1>
+            <h1 style={{ fontSize: '24px', fontWeight: '800', marginBottom: '8px', letterSpacing: '-1px' }}>Compilar Instância</h1>
             <div style={styles.progressBarContainer}>
               <div style={{ ...styles.progressBarFill, width: `${progress}%` }}></div>
             </div>
-            <div style={{ marginTop: '15px', color: 'var(--accent-primary)', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
+            <div style={{ marginTop: '16px', color: 'var(--accent-primary)', fontFamily: 'var(--font-mono)', fontSize: '12px', letterSpacing: '1px' }}>
               {progress}% - INSTÂNCIA ATIVA
             </div>
 
@@ -469,74 +477,88 @@ export default function App() {
       {stage === 'tour' && (
         <div style={styles.fullscreenCenter}>
           <div style={{ ...styles.glassCard, maxWidth: '550px', textAlign: 'center' }} className="glass-panel">
-            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>GUIA DO IMPÉRIO</span>
-            <h1 style={{ fontSize: '28px', fontWeight: '800', marginTop: '10px', marginBottom: '20px' }}>Guia Rápido de Utilização</h1>
+            <span style={styles.badgeMono}>SOVEREIGN ONBOARDING</span>
+            <h1 style={{ fontSize: '24px', fontWeight: '800', marginTop: '10px', marginBottom: '20px', letterSpacing: '-0.5px' }}>Guia Rápido de Utilização</h1>
             
             {tourStep === 0 && (
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>O teu comando central está no **Dashboard**. As funções principais (como projetos e faturamento) ficam concentradas em botões grandes no meio da tua tela.</p>
+              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', fontSize: '14px' }}>O teu comando central está no **Dashboard**. As funções principais (como projetos e faturamento) ficam concentradas em botões grandes no meio da tua tela.</p>
             )}
             {tourStep === 1 && (
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>Utiliza a **Barra Lateral** para gerenciar os teus utilitários essenciais: Perfil, Configurações de Servidor, Manual do Usuário e o teu Assistente de Inteligência Artificial.</p>
+              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', fontSize: '14px' }}>Utiliza a **Barra Lateral** para gerenciar os teus utilitários essenciais: Perfil, Configurações de Servidor, Manual do Usuário e o teu Assistente de Inteligência Artificial.</p>
             )}
             {tourStep === 2 && (
-              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>No **Super Canva**, tu procuras pelo bloco ideal, arrastas e soltas diretamente na malha espacial. O sistema injeta automaticamente o código e conecta as APIs.</p>
+              <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', fontSize: '14px' }}>No **Super Canva**, tu procuras pelo bloco ideal, arrastas e soltas diretamente na malha espacial. O sistema injeta automaticamente o código e conecta as APIs.</p>
             )}
 
-            <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '40px' }}>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '40px' }}>
               {tourStep > 0 && (
-                <button style={{ ...styles.primaryButton, background: 'transparent', color: '#fff', border: '1px solid var(--border-color)' }} onClick={() => setTourStep(tourStep - 1)}>Anterior</button>
+                <button style={{ ...styles.primaryButton, background: 'transparent', color: '#fff', border: '1px solid var(--border-color)', padding: '12px 24px' }} onClick={() => setTourStep(tourStep - 1)}>Anterior</button>
               )}
               {tourStep < 2 ? (
-                <button style={styles.primaryButton} onClick={() => setTourStep(tourStep + 1)}>Próximo</button>
+                <button style={{ ...styles.primaryButton, padding: '12px 24px' }} onClick={() => setTourStep(tourStep + 1)}>Próximo</button>
               ) : (
-                <button style={styles.primaryButton} onClick={() => setStage('dashboard')}>Começar</button>
+                <button style={{ ...styles.primaryButton, padding: '12px 24px' }} onClick={() => setStage('dashboard')}>Começar</button>
               )}
             </div>
           </div>
         </div>
       )}
 
-      {/* --- ETAPA 7: WORKSPACE / DASHBOARD PRINCIPAL --- */}
+      {/* --- ETAPA 7: WORKSPACE / DASHBOARD PRINCIPAL (LUXO TECNOLÓGICO SEV_CORE) --- */}
       {stage === 'dashboard' && (
         <div style={styles.dashboardContainer}>
           {/* BARRA LATERAL FIXA - UTILITÁRIOS */}
           <aside style={styles.sidebar}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '24px', marginBottom: '30px' }}>
-                <span style={{ fontSize: '18px', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>HAPRES</span>
-                <span style={{ fontSize: '9px', fontWeight: '700', color: 'var(--accent-primary)', background: 'var(--accent-glow)', padding: '2px 8px', borderRadius: '20px' }}>SOVEREIGN</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid var(--border-color)', paddingBottom: '24px', marginBottom: '24px' }}>
+                <span style={{ fontSize: '16px', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>HAPRES</span>
+                <span style={{ fontSize: '9px', fontWeight: '700', color: 'var(--accent-primary)', background: 'var(--accent-glow)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border-color)', fontFamily: 'var(--font-mono)' }}>SOVEREIGN</span>
               </div>
 
-              <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <div 
                   style={{ ...styles.navItem, color: activeMenu === 'Overview' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Overview' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Overview' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Overview')}
                 >
-                  <i className="fa-solid fa-chart-pie"></i> Visão Geral
+                  <i className="fa-solid fa-chart-pie" style={{ fontSize: '13px' }}></i> Visão Geral
                 </div>
                 <div 
                   style={{ ...styles.navItem, color: activeMenu === 'Super Canva' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Super Canva' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Super Canva' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Super Canva')}
                 >
-                  <i className="fa-solid fa-cubes"></i> Super Canva
+                  <i className="fa-solid fa-cubes" style={{ fontSize: '13px' }}></i> Super Canva
                 </div>
                 <div 
                   style={{ ...styles.navItem, color: activeMenu === 'Co-Pilot IA' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Co-Pilot IA' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Co-Pilot IA' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Co-Pilot IA')}
                 >
-                  <i className="fa-solid fa-brain"></i> Co-Pilot IA
+                  <i className="fa-solid fa-brain" style={{ fontSize: '13px' }}></i> Co-Pilot IA
                 </div>
                 <div 
                   style={{ ...styles.navItem, color: activeMenu === 'Suporte Neural' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Suporte Neural' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Suporte Neural' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Suporte Neural')}
                 >
-                  <i className="fa-solid fa-headset"></i> Suporte Neural
+                  <i className="fa-solid fa-headset" style={{ fontSize: '13px' }}></i> Suporte Neural
                 </div>
                 <div 
                   style={{ ...styles.navItem, color: activeMenu === 'Perfil' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Perfil' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Perfil' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Perfil')}
                 >
-                  <i className="fa-solid fa-circle-user"></i> Meu Perfil
+                  <i className="fa-solid fa-circle-user" style={{ fontSize: '13px' }}></i> Meu Perfil
+                </div>
+
+                <div 
+                  style={{ ...styles.navItem, color: activeMenu === 'Configurações' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Configurações' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Configurações' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
+                  onClick={() => setActiveMenu('Configurações')}
+                >
+                  <i className="fa-solid fa-gear" style={{ fontSize: '13px' }}></i> Configurações
+                </div>
+
+                <div 
+                  style={{ ...styles.navItem, color: activeMenu === 'Manual' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Manual' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Manual' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
+                  onClick={() => setActiveMenu('Manual')}
+                >
+                  <i className="fa-solid fa-book-open" style={{ fontSize: '13px' }}></i> Manual
                 </div>
 
                 {/* ABA SECRETA DE ADMINISTRADOR ROOT */}
@@ -545,7 +567,7 @@ export default function App() {
                     style={{ ...styles.navItem, color: activeMenu === 'Central Mestre' ? 'var(--accent-secondary)' : 'var(--text-muted)', background: activeMenu === 'Central Mestre' ? 'rgba(16,185,129,0.05)' : 'transparent', borderLeft: '3px solid var(--accent-secondary)' }}
                     onClick={() => setActiveMenu('Central Mestre')}
                   >
-                    <i className="fa-solid fa-shield-halved"></i> Central Mestre
+                    <i className="fa-solid fa-shield-halved" style={{ fontSize: '13px' }}></i> Central Mestre
                   </div>
                 )}
               </nav>
@@ -553,12 +575,12 @@ export default function App() {
 
             {/* Perfil logado no fundo da Sidebar */}
             <div style={styles.sidebarProfile}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '13px', color: '#000' }}>
+              <div style={{ width: '34px', height: '38px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '13px', color: '#000' }}>
                 {contaAtual.avatar}
               </div>
-              <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{contaAtual.nome}</div>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>{contaAtual.role}</div>
+              <div style={{ overflow: 'hidden', marginLeft: '10px' }}>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{contaAtual.nome}</div>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>{contaAtual.role.split(' ')[0]}</div>
               </div>
             </div>
           </aside>
@@ -577,7 +599,7 @@ export default function App() {
                 {/* Grid Centralizado de Funções e Métricas estilo e0a0d0.jpg */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
                   
-                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
+                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                       <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <i className="fa-solid fa-wallet" style={{ color: 'var(--accent-primary)', fontSize: '18px' }}></i>
@@ -588,7 +610,7 @@ export default function App() {
                     <div style={{ fontSize: '36px', fontWeight: '800', marginTop: '8px', letterSpacing: '-1.5px', color: '#fff' }}>R$ 12.450,00</div>
                   </div>
 
-                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
+                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                       <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <i className="fa-solid fa-cubes" style={{ color: 'var(--accent-primary)', fontSize: '18px' }}></i>
@@ -613,20 +635,20 @@ export default function App() {
                 <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', marginBottom: '32px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <h3 style={{ fontSize: '18px', fontWeight: '700' }}><i className="fa-solid fa-chart-line" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Performance e Fluxo de Dados</h3>
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Últimos 7 dias</span>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>LIVE SYNC</span>
                   </div>
-                  <div style={{ width: '100%', height: '160px', position: 'relative' }}>
+                  <div style={{ width: '100%', height: '140px', position: 'relative' }}>
                     <svg viewBox="0 0 500 100" style={{ width: '100%', height: '100%' }}>
                       <defs>
                         <linearGradient id="glowGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.4" />
+                          <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.3" />
                           <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
                         </linearGradient>
                       </defs>
                       <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 10 L 500 100 L 0 100 Z" fill="url(#glowGrad)" />
-                      <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 10" fill="none" stroke="var(--accent-primary)" strokeWidth="3" />
-                      <circle cx="160" cy="50" r="5" fill="var(--accent-secondary)" />
-                      <circle cx="320" cy="30" r="5" fill="var(--accent-primary)" />
+                      <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 10" fill="none" stroke="var(--accent-primary)" strokeWidth="2.5" />
+                      <circle cx="160" cy="50" r="4" fill="var(--accent-secondary)" />
+                      <circle cx="320" cy="30" r="4" fill="var(--accent-primary)" />
                     </svg>
                   </div>
                 </div>
@@ -636,9 +658,9 @@ export default function App() {
             {/* VIEW 2: SUPER CANVA (CATÁLOGO AVANÇADO E COMPONENTES COMPLETOS) */}
             {activeMenu === 'Super Canva' && (
               <div style={{ width: '100%', maxWidth: '1150px' }}>
-                <div style={{ marginBottom: '30px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>MECANISMO DE CRIAÇÃO</span>
-                  <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '6px', letterSpacing: '-2px' }}>Super Canva Engine</h1>
+                <div style={{ marginBottom: '24px' }}>
+                  <span style={styles.badgeMono}>ENGINE ENVIRONMENT</span>
+                  <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px', letterSpacing: '-1.5px' }}>Super Canva Engine</h1>
                 </div>
 
                 <div style={styles.canvaLayout}>
@@ -769,7 +791,7 @@ export default function App() {
                             <div style={{ fontSize: '12px' }}>
                               <div style={{ background: '#000', padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
                                 <div style={{ fontWeight: '700', color: '#fff' }}>Agenda de Mentorias</div>
-                                <div style={{ fontSize: '10px', color: 'var(--accent-primary)', marginTop: '4px' }}>Próximo horário: Hoje 14:00</div>
+                                <div style={{ fontSize: '9px', color: 'var(--accent-primary)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>PRÓXIMO: HOJE 14:00</div>
                               </div>
                             </div>
                           )}
@@ -792,7 +814,7 @@ export default function App() {
             {activeMenu === 'Co-Pilot IA' && (
               <div style={{ width: '100%', maxWidth: '850px' }}>
                 <div style={{ marginBottom: '30px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>AI ASSISTANT</span>
+                  <span style={styles.badgeMono}>AI ASSISTANT</span>
                   <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px', letterSpacing: '-2px' }}>Co-Pilot IA</h1>
                 </div>
 
@@ -930,7 +952,105 @@ export default function App() {
               </div>
             )}
 
-            {/* VIEW 6: CENTRAL MESTRE (ROOT MODOS EXCLUSIVOS DO HENRY) */}
+            {/* --- VIEW 6: CONFIGURAÇÕES COMPLETO --- */}
+            {activeMenu === 'Configurações' && (
+              <div style={{ width: '100%', maxWidth: '900px' }}>
+                <div style={{ marginBottom: '32px' }}>
+                  <span style={styles.badgeMono}>CORE INTERFACE / SYSTEM SETTINGS</span>
+                  <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px', letterSpacing: '-1.5px' }}>Configurações Globais</h1>
+                </div>
+
+                <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '20px' }}>Integrações de API (Motores de Elite)</h3>
+                  
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>OpenAI API Key</label>
+                    <input type="password" style={styles.input} value={apiKeyOpenAI} onChange={(e) => setApiKeyOpenAI(e.target.value)} />
+                  </div>
+
+                  <div style={styles.formGroup}>
+                    <label style={styles.label}>Anthropic API Key (Claude)</label>
+                    <input type="password" style={styles.input} value={apiKeyAnthropic} onChange={(e) => setApiKeyAnthropic(e.target.value)} />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Região do Servidor</label>
+                      <select value={serverRegion} onChange={(e) => setServerRegion(e.target.value)} style={{ ...styles.input, background: '#000', cursor: 'pointer' }}>
+                        <option value="us-east-1">Estados Unidos (us-east-1)</option>
+                        <option value="sa-east-1">São Paulo, Brasil (sa-east-1)</option>
+                        <option value="eu-central-1">Frankfurt, Alemanha (eu-central-1)</option>
+                      </select>
+                    </div>
+
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Status do Banco de Dados</label>
+                      <div style={{ ...styles.input, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.3)', pointerEvents: 'none' }}>
+                        <span style={{ fontSize: '13px' }}>{dbStatus}</span>
+                        <span style={{ fontSize: '10px', color: 'var(--accent-secondary)', fontFamily: 'var(--font-mono)' }}>● ONLINE</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+                    <div>
+                      <h4 style={{ fontSize: '14px', fontWeight: '700' }}>Certificado SSL Dedicado</h4>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Forçar conexões HTTPS seguras nativamente.</p>
+                    </div>
+                    <button 
+                      onClick={() => setSslActive(!sslActive)} 
+                      style={{ ...styles.primaryButton, padding: '8px 16px', background: sslActive ? 'var(--accent-secondary)' : 'rgba(255,255,255,0.05)', color: sslActive ? '#000' : '#fff' }}
+                    >
+                      {sslActive ? 'Ativo' : 'Inativo'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* --- VIEW 7: MANUAL INTERATIVO (O MANUAL DO LEIGO) --- */}
+            {activeMenu === 'Manual' && (
+              <div style={{ width: '100%', maxWidth: '900px' }}>
+                <div style={{ marginBottom: '32px' }}>
+                  <span style={styles.badgeMono}>ENCYCLOPEDIA OVERVIEW</span>
+                  <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px', letterSpacing: '-1.5px' }}>Manual do Usuário</h1>
+                </div>
+
+                <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '32px' }}>
+                  <h2 style={{ fontSize: '18px', fontWeight: '800', marginBottom: '16px', color: 'var(--accent-primary)' }}>Como Operar a tua Fábrica de Magia</h2>
+                  <p style={{ fontSize: '14px', lineHeight: '1.6', marginBottom: '24px' }}>
+                    O **Hapres Sovereign** foi planejado sob o conceito de Soberania Tecnológica Absoluta. Não precisas de programadores, agências ou servidores externos. Aqui tens o controle completo da tua infraestrutura estática e dos módulos integrados.
+                  </p>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', padding: '20px', borderRadius: '12px' }}>
+                      <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}><i className="fa-solid fa-qrcode" style={{ color: 'var(--accent-primary)', marginRight: '8px' }}></i> Gateway Pix VIP</h4>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.5' }}>Arrasta o módulo Pix para o Canva. Altera o valor nos inputs internos do componente. O QR-Code e a chave Pix funcional serão gerados imediatamente na tela do teu app filho.</p>
+                    </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
+                      <i className="fa-solid fa-soccer-ball" style={{ color: 'var(--accent-primary)', fontSize: '18px', marginBottom: '10px', display: 'block' }}></i>
+                      <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>Módulo Esportes</h4>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.5' }}>Exibe placares em tempo real e calcula estatísticas de forma automática utilizando os barramentos de dados do SofaScore Pro.</p>
+                    </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
+                      <i className="fa-solid fa-church" style={{ color: 'var(--accent-primary)', fontSize: '18px', marginBottom: '10px', display: 'block' }}></i>
+                      <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>Lumen Diei (Fé)</h4>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.5' }}>Gera layouts e calendários litúrgicos ricos. Exibe passagens, salmos e exames de consciência para os teus utilizadores de forma fluída.</p>
+                    </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '20px' }}>
+                      <i className="fa-solid fa-brain" style={{ color: 'var(--accent-primary)', fontSize: '18px', marginBottom: '10px', display: 'block' }}></i>
+                      <h4 style={{ fontSize: '14px', fontWeight: '700', marginBottom: '10px' }}>Integrações com IA</h4>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.5' }}>O teu Assistente Neural responde de forma livre no painel. Podes dar comandos diretos de linguagem natural como: "Adiciona o módulo de liturgia no meu Canva" para ele executar as ações por ti.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* VIEW 8: CENTRAL MESTRE (ROOT MODOS EXCLUSIVOS DO HENRY) */}
             {activeMenu === 'Central Mestre' && (
               <div style={{ width: '100%', maxWidth: '1000px' }}>
                 <div style={styles.rootBanner}>
@@ -980,7 +1100,7 @@ const styles = {
     background: 'var(--bg-card)',
     backdropFilter: 'blur(30px)',
     border: '1px solid var(--border-color)',
-    borderRadius: '24px',
+    borderRadius: '16px',
     padding: '48px',
     width: '100%',
     maxWidth: '600px',
@@ -1002,10 +1122,10 @@ const styles = {
     background: 'var(--accent-primary)',
     color: '#000',
     fontWeight: '700',
-    padding: '16px 32px',
+    padding: '14px 28px',
     border: 'none',
-    borderRadius: '12px',
-    fontSize: '15px',
+    borderRadius: '8px',
+    fontSize: '14px',
     cursor: 'pointer',
     transition: 'transform 0.2s',
   },
@@ -1015,35 +1135,36 @@ const styles = {
   },
   label: {
     display: 'block',
-    fontSize: '12px',
+    fontSize: '11px',
     color: 'var(--text-muted)',
     marginBottom: '8px',
     textTransform: 'uppercase',
-    letterSpacing: '1px'
+    letterSpacing: '1px',
+    fontFamily: 'var(--font-mono)'
   },
   input: {
     width: '100%',
     background: 'rgba(0,0,0,0.5)',
     border: '1px solid var(--border-color)',
-    padding: '16px',
-    borderRadius: '12px',
+    padding: '14px 16px',
+    borderRadius: '8px',
     color: '#fff',
     fontSize: '14px',
     outline: 'none',
   },
   themeCard: {
     background: 'var(--bg-card)',
-    borderRadius: '20px',
-    padding: '30px',
+    borderRadius: '12px',
+    padding: '24px',
     cursor: 'pointer',
     textAlign: 'center',
     transition: 'all 0.3s'
   },
   progressBarContainer: {
     width: '100%',
-    height: '6px',
+    height: '4px',
     background: 'rgba(255,255,255,0.05)',
-    borderRadius: '3px',
+    borderRadius: '2px',
     marginTop: '30px',
     overflow: 'hidden'
   },
@@ -1055,10 +1176,10 @@ const styles = {
   terminalConsole: {
     background: 'rgba(0,0,0,0.6)',
     border: '1px solid var(--border-color)',
-    borderRadius: '12px',
-    padding: '24px',
+    borderRadius: '8px',
+    padding: '20px',
     fontFamily: 'var(--font-mono)',
-    fontSize: '12px',
+    fontSize: '11px',
     textAlign: 'left',
     marginTop: '30px',
     color: '#10b981',
@@ -1067,14 +1188,14 @@ const styles = {
   },
   dashboardContainer: {
     display: 'grid',
-    gridTemplateColumns: '280px 1fr',
+    gridTemplateColumns: '260px 1fr',
     height: '100vh',
     overflow: 'hidden'
   },
   sidebar: {
-    background: '#07050d',
+    background: '#040406',
     borderRight: '1px solid var(--border-color)',
-    padding: '40px 24px',
+    padding: '32px 20px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between'
@@ -1082,85 +1203,72 @@ const styles = {
   navItem: {
     display: 'flex',
     alignItems: 'center',
-    gap: '14px',
-    padding: '14px 18px',
-    borderRadius: '14px',
+    gap: '12px',
+    padding: '12px 14px',
+    borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: '600',
     transition: 'all 0.2s'
   },
   sidebarProfile: {
-    background: 'rgba(255,255,255,0.02)',
-    padding: '16px',
-    borderRadius: '16px',
+    background: 'rgba(255,255,255,0.01)',
+    padding: '12px',
+    borderRadius: '10px',
     border: '1px solid rgba(255,255,255,0.02)',
     display: 'flex',
     alignItems: 'center',
-    gap: '12px'
+    gap: '10px'
   },
   workspace: {
-    padding: '48px 56px',
+    padding: '40px 48px',
     overflowY: 'auto',
-    background: 'radial-gradient(circle at 50% 0%, #15102a 0%, var(--bg-main) 60%)'
-  },
-  centralMobileGrid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(2, 1fr)',
-    gap: '24px',
-    width: '100%',
-    maxWidth: '750px',
-    marginTop: '40px'
-  },
-  bentoTile: {
-    padding: '40px',
-    textAlign: 'center',
-    cursor: 'pointer',
-    transition: 'all 0.3s'
+    background: 'radial-gradient(circle at 50% 0%, #110d24 0%, var(--bg-main) 60%)'
   },
   canvaLayout: {
     display: 'grid',
-    gridTemplateColumns: '320px 1fr',
-    height: '580px',
+    gridTemplateColumns: '280px 1fr',
+    height: '560px',
     border: '1px solid var(--border-color)',
-    borderRadius: '24px',
+    borderRadius: '16px',
     overflow: 'hidden'
   },
   canvaSidebar: {
-    background: 'rgba(5, 5, 8, 0.95)',
-    padding: '24px',
+    background: '#060608',
+    padding: '20px',
     borderRight: '1px solid var(--border-color)',
     display: 'flex',
     flexDirection: 'column'
   },
   inputSearch: {
-    background: 'rgba(255,255,255,0.03)',
+    background: 'rgba(255,255,255,0.02)',
     border: '1px solid var(--border-color)',
-    padding: '14px',
-    borderRadius: '10px',
+    padding: '12px',
+    borderRadius: '8px',
     color: '#fff',
     outline: 'none',
-    marginBottom: '20px'
+    marginBottom: '16px',
+    fontSize: '13px'
   },
   catalogGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '12px',
+    gap: '10px',
     overflowY: 'auto'
   },
   draggableCard: {
     background: 'rgba(255,255,255,0.01)',
     border: '1px solid var(--border-color)',
-    borderRadius: '12px',
-    padding: '16px 12px',
+    borderRadius: '8px',
+    padding: '14px 10px',
     textAlign: 'center',
     cursor: 'grab',
     userSelect: 'none'
   },
   canvaWorkspace: {
-    background: 'radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)',
-    backgroundSize: '24px 24px',
-    backgroundColor: '#09090c',
+    background: 'radial-gradient(rgba(255,255,255,0.02) 1px, transparent 1px)',
+    backgroundSize: '20px 20px',
+    backgroundColor: '#030305',
     position: 'relative',
     display: 'flex',
     justifyContent: 'center',
@@ -1168,63 +1276,95 @@ const styles = {
   },
   canvasElement: {
     position: 'absolute',
-    background: 'rgba(255,255,255,0.06)',
+    background: 'rgba(10, 10, 14, 0.95)',
     border: '1px solid var(--accent-primary)',
     padding: '16px',
-    borderRadius: '14px',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-    minWidth: '150px'
+    borderRadius: '12px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+    minWidth: '220px'
   },
   btnRemoveElement: {
-    background: 'rgba(239, 68, 68, 0.1)',
+    background: 'rgba(239, 68, 68, 0.08)',
     color: '#ef4444',
-    border: 'none',
-    borderRadius: '8px',
+    border: '1px solid rgba(239, 68, 68, 0.15)',
+    borderRadius: '6px',
     padding: '4px 8px',
-    fontSize: '11px',
+    fontSize: '10px',
     cursor: 'pointer',
     marginTop: '10px',
-    width: '100%'
+    width: '100%',
+    fontFamily: 'var(--font-mono)'
   },
   chatContainer: {
     display: 'flex',
     flexDirection: 'column',
-    height: '500px',
-    borderRadius: '24px',
+    height: '480px',
+    borderRadius: '16px',
     overflow: 'hidden'
   },
   chatHistory: {
     flexGrow: 1,
-    padding: '24px',
+    padding: '20px',
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    gap: '16px'
+    gap: '12px'
   },
   chatBubble: {
     maxWidth: '80%',
-    padding: '14px 20px',
-    borderRadius: '16px',
-    fontSize: '14px',
+    padding: '12px 16px',
+    borderRadius: '12px',
+    fontSize: '13px',
     lineHeight: '1.5'
   },
   chatInput: {
     flexGrow: 1,
     background: 'rgba(0,0,0,0.5)',
     border: '1px solid var(--border-color)',
-    borderRadius: '12px',
-    padding: '14px',
+    borderRadius: '8px',
+    padding: '12px',
     color: '#fff',
-    outline: 'none'
+    outline: 'none',
+    fontSize: '13px'
   },
   rootBanner: {
-    background: 'linear-gradient(90deg, rgba(16,185,129,0.08) 0%, transparent 100%)',
+    background: 'linear-gradient(90deg, rgba(16,185,129,0.05) 0%, transparent 100%)',
     borderLeft: '4px solid var(--accent-secondary)',
-    padding: '20px 24px',
-    borderRadius: '0 16px 16px 0'
+    padding: '16px 20px',
+    borderRadius: '0 12px 12px 0'
   },
   rootStatCard: {
+    padding: '20px',
+    borderRadius: '12px'
+  },
+  badgeMono: {
+    fontSize: '10px',
+    fontFamily: 'var(--font-mono)',
+    fontWeight: '700',
+    color: 'var(--accent-primary)',
+    letterSpacing: '1.5px',
+    display: 'block',
+    marginBottom: '8px'
+  },
+  overboardTitle: {
+    fontSize: '32px',
+    fontWeight: '800',
+    marginTop: '8px',
+    marginBottom: '16px',
+    letterSpacing: '-1px',
+    color: '#fff'
+  },
+  overboardText: {
+    color: 'var(--text-muted)',
+    lineHeight: '1.6',
+    fontSize: '15px',
+    marginBottom: '32px'
+  },
+  luxuryDashboardCard: {
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '16px',
     padding: '24px',
-    borderRadius: '16px'
+    boxShadow: '0 8px 32px var(--accent-glow)'
   }
 };
