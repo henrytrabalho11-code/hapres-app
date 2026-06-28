@@ -24,17 +24,21 @@ export default function App() {
   // Navegação do Dashboard
   const [activeMenu, setActiveMenu] = useState('Overview'); // Overview, Super Canva, Co-Pilot IA, Suporte Neural, Perfil, Configurações, Manual, Central Mestre
 
-  // Configurações do Sistema Expandidas (Luxo Tecnológico)
+  // Configurações do Sistema Altamente Expandidas (Stripe/Vercel Tech-Luxury Style)
   const [apiKeyOpenAI, setApiKeyOpenAI] = useState('sk-proj-••••••••••••••••34a1');
   const [apiKeyAnthropic, setApiKeyAnthropic] = useState('sk-ant-••••••••••••••••92b3');
   const [sslActive, setSslActive] = useState(true);
-  const [serverRegion, setServerRegion] = useState('us-east-1');
+  const [serverRegion, setServerRegion] = useState('sa-east-1');
   const [webhookUrl, setWebhookUrl] = useState('https://api.hapres.com/v1/webhook/receiver_01');
   const [backupSchedule, setBackupSchedule] = useState('daily'); // daily, weekly, manual
   const [aiTemperature, setAiTemperature] = useState(0.7);
   const [rateLimit, setRateLimit] = useState(60); // req/min
   const [customDomain, setCustomDomain] = useState('app.henryserpa.com');
   const [smtpHost, setSmtpHost] = useState('smtp.sovereign.io');
+  const [smtpPort, setSmtpPort] = useState('587');
+  const [smtpUser, setSmtpUser] = useState('auth@sovereign.io');
+  const [edgeCaching, setEdgeCaching] = useState(true);
+  const [dbBackupLimit, setDbBackupLimit] = useState(10); // backups retidos
 
   // Gestão de Multi-Contas (Perfil)
   const [contas, setContas] = useState([
@@ -139,44 +143,44 @@ export default function App() {
   // Escolha Cromática Dinâmica (Chroma Forge)
   const themes = {
     luxury: {
-      '--bg-main': '#020204',
-      '--bg-card': '#0a0a0d',
+      '--bg-main': '#030305',
+      '--bg-card': '#09090c',
       '--border-color': 'rgba(197, 160, 89, 0.08)',
       '--accent-primary': '#c5a059', // Ouro Fino
       '--accent-secondary': '#10b981', // Esmeralda
       '--accent-glow': 'rgba(197, 160, 89, 0.04)',
       '--text-main': '#f3f4f6',
-      '--text-muted': '#787780'
+      '--text-muted': '#62616a'
     },
     minimalist: {
-      '--bg-main': '#050505',
-      '--bg-card': '#0c0c0e',
+      '--bg-main': '#020202',
+      '--bg-card': '#0a0a0c',
       '--border-color': 'rgba(255, 255, 255, 0.05)',
       '--accent-primary': '#e5e7eb', // Platina
-      '--accent-secondary': '#6b7280',
+      '--accent-secondary': '#4b5563',
       '--accent-glow': 'rgba(255, 255, 255, 0.02)',
       '--text-main': '#f9fafb',
-      '--text-muted': '#6b7280'
+      '--text-muted': '#5c5e69'
     },
     neon: {
-      '--bg-main': '#010005',
-      '--bg-card': '#05020f',
+      '--bg-main': '#010004',
+      '--bg-card': '#04010a',
       '--border-color': 'rgba(255, 0, 85, 0.15)',
       '--accent-primary': '#ff0055', // Rosa Cyberpunk
       '--accent-secondary': '#00ffcc', // Ciano Neon
       '--accent-glow': 'rgba(255, 0, 85, 0.03)',
       '--text-main': '#ffffff',
-      '--text-muted': '#8b5cf6'
+      '--text-muted': '#7c3aed'
     },
     sapphire: {
-      '--bg-main': '#00040d',
-      '--bg-card': '#010b1a',
-      '--border-color': 'rgba(59, 130, 246, 0.15)',
+      '--bg-main': '#00020a',
+      '--bg-card': '#010714',
+      '--border-color': 'rgba(59, 130, 246, 0.12)',
       '--accent-primary': '#3b82f6', // Safira Real
       '--accent-secondary': '#f59e0b', // Âmbar
       '--accent-glow': 'rgba(59, 130, 246, 0.03)',
       '--text-main': '#f1f5f9',
-      '--text-muted': '#64748b'
+      '--text-muted': '#475569'
     }
   };
 
@@ -596,67 +600,129 @@ export default function App() {
             {/* VIEW 1: OVERVIEW COMPLETA COM GRÁFICOS SVG */}
             {activeMenu === 'Overview' && (
               <div style={{ width: '100%', maxWidth: '1000px' }}>
-                <div style={{ marginBottom: '40px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>SOVEREIGN CORE</span>
-                  <h1 style={{ fontSize: '42px', fontWeight: '800', marginTop: '6px', letterSpacing: '-2px' }}>Visão Geral da Operação</h1>
+                
+                {/* Cabeçalho centralizado com foto e localização estilo App Viagens */}
+                <div style={styles.headerProfileContainer}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={styles.headerAvatar}>
+                      {contaAtual.nome.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#fff', letterSpacing: '-0.5px' }}>Hello, {contaAtual.nome}</h2>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                        <i className="fa-solid fa-location-dot" style={{ color: 'var(--accent-primary)' }}></i> Sovereign Node: {serverRegion}
+                      </p>
+                    </div>
+                  </div>
+                  <div style={styles.headerStatsMono}>
+                    <span style={{ color: 'var(--accent-secondary)' }}>● CORE INSTANCE</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'block', marginTop: '3px' }}>API STATUS: FUNCTIONAL</span>
+                  </div>
                 </div>
 
-                {/* Grid Centralizado de Funções e Métricas estilo e0a0d0.jpg */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+                <div style={{ marginBottom: '32px' }}>
+                  <span style={styles.badgeMono}>SOVEREIGN STATUS</span>
+                  <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '6px', letterSpacing: '-1.5px' }}>Comando Central</h1>
+                </div>
+
+                {/* Grid Centralizado de Funções e Métricas estilo e0a0d0.jpg & Bento Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px' }}>
                   
-                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <i className="fa-solid fa-wallet" style={{ color: 'var(--accent-primary)', fontSize: '18px' }}></i>
+                  <div className="glass-card" style={styles.luxuryDashboardCard}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '6px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)' }}>
+                        <i className="fa-solid fa-wallet" style={{ color: 'var(--accent-primary)', fontSize: '16px' }}></i>
                       </div>
-                      <span style={{ fontSize: '11px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '4px 10px', borderRadius: '12px', fontWeight: '700' }}>ATIVO</span>
+                      <span style={{ fontSize: '10px', background: 'rgba(16, 185, 129, 0.08)', color: '#10b981', padding: '3px 8px', borderRadius: '4px', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>ONLINE</span>
                     </div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Faturamento Recorrente</div>
-                    <div style={{ fontSize: '36px', fontWeight: '800', marginTop: '8px', letterSpacing: '-1.5px', color: '#fff' }}>R$ 12.450,00</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: '500' }}>Faturamento Recorrente</div>
+                    <div style={{ fontSize: '32px', fontWeight: '800', marginTop: '8px', letterSpacing: '-1px', color: '#fff' }}>R$ 12.450,00</div>
                   </div>
 
-                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <i className="fa-solid fa-cubes" style={{ color: 'var(--accent-primary)', fontSize: '18px' }}></i>
+                  <div className="glass-card" style={styles.luxuryDashboardCard}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '6px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)' }}>
+                        <i className="fa-solid fa-cubes" style={{ color: 'var(--accent-primary)', fontSize: '16px' }}></i>
                       </div>
                     </div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Módulos Ativos no Canva</div>
-                    <div style={{ fontSize: '36px', fontWeight: '800', marginTop: '8px', letterSpacing: '-1.5px', color: '#fff' }}>{modulosInjetados.length} <span style={{ fontSize: '16px', color: 'var(--text-muted)', fontWeight: '400' }}>Injetados</span></div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: '500' }}>Módulos Ativos no Canva</div>
+                    <div style={{ fontSize: '32px', fontWeight: '800', marginTop: '8px', letterSpacing: '-1px', color: '#fff' }}>{modulosInjetados.length} <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: '400' }}>Ativos</span></div>
                   </div>
 
-                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                      <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <i className="fa-solid fa-users" style={{ color: 'var(--accent-primary)', fontSize: '18px' }}></i>
+                  {/* Widget Real-Time de Latência e nós de Rede */}
+                  <div className="glass-card" style={styles.luxuryDashboardCard}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '6px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border-color)' }}>
+                        <i className="fa-solid fa-server" style={{ color: 'var(--accent-primary)', fontSize: '16px' }}></i>
                       </div>
+                      <span style={{ fontSize: '10px', background: 'rgba(59, 130, 246, 0.08)', color: '#3b82f6', padding: '3px 8px', borderRadius: '4px', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>SECURE</span>
                     </div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Instância Operacional</div>
-                    <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '16px', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{contaAtual.nome}</div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '13px', fontWeight: '500' }}>Operational Readouts</div>
+                    <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#fff' }}>
+                      <div>PING: <span style={{ color: 'var(--accent-secondary)' }}>12ms</span></div>
+                      <div>SSL: <span style={{ color: 'var(--accent-secondary)' }}>ACTIVE (TLS 1.3)</span></div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Bloco de Gráficos de Luxo SVG */}
-                <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', marginBottom: '32px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <h3 style={{ fontSize: '18px', fontWeight: '700' }}><i className="fa-solid fa-chart-line" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Performance e Fluxo de Dados</h3>
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>LIVE SYNC</span>
+                {/* Bento Grid Layout Principal - Seção de Schedule e Gráficos combinados */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '20px', marginBottom: '32px' }}>
+                  
+                  {/* Gráfico de Performance */}
+                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <h3 style={{ fontSize: '15px', fontWeight: '700' }}><i className="fa-solid fa-chart-line" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Tráfego do Sistema</h3>
+                      <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>LIVE METRICS</span>
+                    </div>
+                    <div style={{ width: '100%', height: '140px', position: 'relative' }}>
+                      <svg viewBox="0 0 500 100" style={{ width: '100%', height: '100%' }}>
+                        <defs>
+                          <linearGradient id="glowGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.25" />
+                            <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
+                          </linearGradient>
+                        </defs>
+                        <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 15 L 500 100 L 0 100 Z" fill="url(#glowGrad)" />
+                        <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 15" fill="none" stroke="var(--accent-primary)" strokeWidth="2.5" />
+                        <circle cx="160" cy="50" r="4" fill="var(--accent-secondary)" />
+                        <circle cx="320" cy="30" r="4" fill="var(--accent-primary)" />
+                      </svg>
+                    </div>
                   </div>
-                  <div style={{ width: '100%', height: '140px', position: 'relative' }}>
-                    <svg viewBox="0 0 500 100" style={{ width: '100%', height: '100%' }}>
-                      <defs>
-                        <linearGradient id="glowGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.3" />
-                          <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 10 L 500 100 L 0 100 Z" fill="url(#glowGrad)" />
-                      <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 10" fill="none" stroke="var(--accent-primary)" strokeWidth="2.5" />
-                      <circle cx="160" cy="50" r="4" fill="var(--accent-secondary)" />
-                      <circle cx="320" cy="30" r="4" fill="var(--accent-primary)" />
-                    </svg>
+
+                  {/* Card Bottom Sheet de Schedule / Transações Recentes */}
+                  <div className="glass-card" style={{ background: '#fff', border: '1px solid #e4e4e7', borderRadius: '16px', padding: '24px', color: '#000', boxShadow: '0 10px 40px rgba(0,0,0,0.15)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                      <h3 style={{ fontSize: '14px', fontWeight: '800', color: '#18181b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Agenda Recorrente</h3>
+                      <span style={{ fontSize: '10px', background: 'rgba(0,0,0,0.05)', padding: '2px 8px', borderRadius: '4px', fontWeight: '700', fontFamily: 'var(--font-mono)' }}>PRO</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ borderLeft: '3px solid #7b57ff', paddingLeft: '12px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: '700' }}>Dízimo Lumen Diei</div>
+                        <div style={{ fontSize: '10px', color: '#71717a', marginTop: '2px' }}>Disparo às 12:00 via API Pix</div>
+                      </div>
+                      <div style={{ borderLeft: '3px solid #10b981', paddingLeft: '12px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: '700' }}>Backup de Instâncias</div>
+                        <div style={{ fontSize: '10px', color: '#71717a', marginTop: '2px' }}>Região: AWS sa-east-1</div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Event Log Terminal integrado diretamente no Dashboard */}
+                <div className="glass-card" style={{ background: '#040406', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                    <h3 style={{ fontSize: '13px', fontWeight: '700', fontFamily: 'var(--font-mono)', color: 'var(--accent-primary)' }}>&gt;_ SYSTEM_EVENT_LOG</h3>
+                    <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>AUTO-SYNC</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: '#a1a1aa' }}>
+                    <div>[20:56:12] <span style={{ color: 'var(--accent-secondary)' }}>SUCCESS</span>: SSL Certificate verified for domain "{customDomain}".</div>
+                    <div>[20:57:45] <span style={{ color: 'var(--accent-primary)' }}>INFO</span>: Automatic DB backup created successfully ({dbBackupLimit} retained).</div>
+                    <div>[20:59:01] <span style={{ color: 'var(--accent-secondary)' }}>ACTIVE</span>: Edge caching nodes optimized globally (TTFB: 8ms).</div>
                   </div>
                 </div>
+
               </div>
             )}
 
@@ -686,8 +752,8 @@ export default function App() {
                           onDragStart={(e) => handleDragStart(e, m)}
                           style={styles.draggableCard}
                         >
-                          <i className={`fa-solid ${m.icon}`} style={{ fontSize: '20px', color: 'var(--accent-primary)', marginBottom: '8px' }}></i>
-                          <div style={{ fontSize: '12px', fontWeight: '600' }}>{m.name}</div>
+                          <i className={`fa-solid ${m.icon}`} style={{ fontSize: '18px', color: 'var(--accent-primary)', marginBottom: '8px' }}></i>
+                          <div style={{ fontSize: '11px', fontWeight: '700' }}>{m.name}</div>
                         </div>
                       ))}
                     </div>
@@ -700,10 +766,10 @@ export default function App() {
                     onDrop={handleDrop}
                   >
                     {modulosInjetados.length === 0 ? (
-                      <div style={{ color: 'rgba(255,255,255,0.15)', textAlign: 'center', pointerEvents: 'none' }}>
-                        <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '56px', marginBottom: '20px', color: 'var(--accent-primary)' }}></i>
-                        <h3 style={{ fontSize: '20px', fontWeight: '700' }}>Espaço de Criação Vazio</h3>
-                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginTop: '8px' }}>Arrasta os elementos do catálogo lateral para aqui</p>
+                      <div style={{ color: 'rgba(255,255,255,0.1)', textAlign: 'center', pointerEvents: 'none' }}>
+                        <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '48px', marginBottom: '16px', color: 'var(--accent-primary)' }}></i>
+                        <h3 style={{ fontSize: '18px', fontWeight: '700' }}>Malha de Criação Vazia</h3>
+                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Arrasta os elementos do catálogo lateral para aqui</p>
                       </div>
                     ) : (
                       modulosInjetados.map(m => (
@@ -712,29 +778,29 @@ export default function App() {
                           style={{ ...styles.canvasElement, left: m.x, top: m.y }}
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', marginBottom: '12px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '8px', marginBottom: '12px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <i className={`fa-solid ${m.icon}`} style={{ color: 'var(--accent-primary)', fontSize: '14px' }}></i>
-                              <span style={{ fontSize: '12px', fontWeight: '800', color: '#fff' }}>{m.name}</span>
+                              <i className={`fa-solid ${m.icon}`} style={{ color: 'var(--accent-primary)', fontSize: '12px' }}></i>
+                              <span style={{ fontSize: '11px', fontWeight: '800', color: '#fff', fontFamily: 'var(--font-mono)' }}>{m.name}</span>
                             </div>
-                            <i className="fa-solid fa-circle" style={{ color: 'var(--accent-secondary)', fontSize: '8px' }}></i>
+                            <i className="fa-solid fa-circle" style={{ color: 'var(--accent-secondary)', fontSize: '6px' }}></i>
                           </div>
 
                           {/* --- COMPONENTE REAL: GATEWAY PIX --- */}
                           {m.id === 'mod_pix' && (
-                            <div style={{ fontSize: '13px' }}>
-                              <label style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Valor do Pix (R$)</label>
+                            <div style={{ fontSize: '12px' }}>
+                              <label style={{ fontSize: '9px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px', fontFamily: 'var(--font-mono)' }}>VALOR DO PIX (R$)</label>
                               <input 
                                 type="number" 
                                 value={pixAmount} 
                                 onChange={(e) => setPixAmount(e.target.value)} 
-                                style={{ width: '100%', background: '#000', border: '1px solid rgba(255,255,255,0.1)', padding: '6px 10px', color: '#fff', borderRadius: '6px', fontSize: '12px', outline: 'none' }}
+                                style={{ width: '100%', background: '#000', border: '1px solid rgba(255,255,255,0.08)', padding: '6px 10px', color: '#fff', borderRadius: '6px', fontSize: '11px', outline: 'none', fontFamily: 'var(--font-mono)' }}
                               />
-                              <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <i className="fa-solid fa-qrcode" style={{ fontSize: '28px', color: 'var(--accent-primary)' }}></i>
+                              <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <i className="fa-solid fa-qrcode" style={{ fontSize: '24px', color: 'var(--accent-primary)' }}></i>
                                 <div>
-                                  <div style={{ fontWeight: '700', color: '#fff' }}>PIX Gerado</div>
-                                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Status: {pixStatus}</div>
+                                  <div style={{ fontWeight: '700', color: '#fff', fontSize: '11px' }}>PIX Gerado</div>
+                                  <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{pixStatus}</div>
                                 </div>
                               </div>
                             </div>
@@ -742,35 +808,35 @@ export default function App() {
 
                           {/* --- COMPONENTE REAL: SPORT BOT PRO --- */}
                           {m.id === 'mod_futebol' && (
-                            <div style={{ fontSize: '13px', color: '#fff' }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '8px', marginBottom: '8px' }}>
-                                <span>Real Madrid</span>
+                            <div style={{ fontSize: '12px', color: '#fff' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '6px', marginBottom: '6px' }}>
+                                <span style={{ fontSize: '11px' }}>Real Madrid</span>
                                 <span style={{ fontWeight: '800', color: 'var(--accent-primary)' }}>2</span>
                               </div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '8px' }}>
-                                <span>Barcelona</span>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '6px' }}>
+                                <span style={{ fontSize: '11px' }}>Barcelona</span>
                                 <span style={{ fontWeight: '800', color: 'var(--accent-primary)' }}>1</span>
                               </div>
-                              <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center' }}>
-                                Probabilidade: 84% vitória Real Madrid
+                              <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>
+                                PROBABILIDADE: 84% VITÓRIA RM
                               </div>
                             </div>
                           )}
 
                           {/* --- COMPONENTE REAL: LUMEN DIEI (FÉ) --- */}
                           {m.id === 'mod_fe' && (
-                            <div style={{ fontSize: '12px', color: '#fff', maxWidth: '280px' }}>
-                              <div style={{ background: 'linear-gradient(135deg, #1b1235 0%, #0c081a 100%)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(197, 160, 89, 0.2)' }}>
-                                <div style={{ color: 'var(--accent-primary)', fontWeight: '800', fontSize: '13px' }}>Lumen Diei</div>
-                                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>Liturgia do Dia e Catequese</div>
-                                <div style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
-                                  <strong>Evangelho de Hoje:</strong> "Vós sois o sal da terra e a luz do mundo."
+                            <div style={{ fontSize: '11px', color: '#fff', maxWidth: '280px' }}>
+                              <div style={{ background: 'linear-gradient(135deg, #1b1235 0%, #0c081a 100%)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                <div style={{ color: 'var(--accent-primary)', fontWeight: '800', fontSize: '12px' }}>Lumen Diei</div>
+                                <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '2px' }}>Liturgia Diária & Fé</div>
+                                <div style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px', fontSize: '10px', lineHeight: '1.4' }}>
+                                  <strong>Evangelho:</strong> "Vós sois o sal da terra e a luz do mundo."
                                 </div>
                                 <div style={{ marginTop: '10px' }}>
-                                  <div style={{ fontWeight: '700', marginBottom: '4px' }}>Exame de Consciência:</div>
+                                  <div style={{ fontWeight: '700', marginBottom: '4px', fontSize: '9px' }}>EXAME DE CONSCIÊNCIA:</div>
                                   <div style={{ display: 'flex', gap: '6px' }}>
-                                    <button onClick={() => setConscienciaAnswer('realizado')} style={{ flex: 1, padding: '4px', background: conscienciaAnswer === 'realizado' ? 'var(--accent-secondary)' : '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}>Realizado</button>
-                                    <button onClick={() => setConscienciaAnswer('pendente')} style={{ flex: 1, padding: '4px', background: conscienciaAnswer === 'pendente' ? 'var(--accent-primary)' : '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}>Pendente</button>
+                                    <button onClick={() => setConscienciaAnswer('realizado')} style={{ flex: 1, padding: '4px', background: conscienciaAnswer === 'realizado' ? 'var(--accent-secondary)' : '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '9px', fontWeight: '700' }}>Realizado</button>
+                                    <button onClick={() => setConscienciaAnswer('pendente')} style={{ flex: 1, padding: '4px', background: conscienciaAnswer === 'pendente' ? 'var(--accent-primary)' : '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '9px', fontWeight: '700' }}>Pendente</button>
                                   </div>
                                 </div>
                               </div>
@@ -779,7 +845,7 @@ export default function App() {
 
                           {/* --- COMPONENTE REAL: CRIPTO MATRIX --- */}
                           {m.id === 'mod_crypto' && (
-                            <div style={{ fontSize: '11px', color: '#fff' }}>
+                            <div style={{ fontSize: '11px', color: '#fff', fontFamily: 'var(--font-mono)' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                                 <span style={{ color: 'var(--text-muted)' }}>BTC/USD</span>
                                 <span style={{ fontWeight: '700', color: 'var(--accent-secondary)' }}>$64.250,00</span>
@@ -793,8 +859,8 @@ export default function App() {
 
                           {/* --- COMPONENTE REAL: AGENDAMENTO --- */}
                           {m.id === 'mod_agendamento' && (
-                            <div style={{ fontSize: '12px' }}>
-                              <div style={{ background: '#000', padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '11px' }}>
+                              <div style={{ background: '#000', padding: '8px', borderRadius: '6px', textAlign: 'center' }}>
                                 <div style={{ fontWeight: '700', color: '#fff' }}>Agenda de Mentorias</div>
                                 <div style={{ fontSize: '9px', color: 'var(--accent-primary)', marginTop: '4px', fontFamily: 'var(--font-mono)' }}>PRÓXIMO: HOJE 14:00</div>
                               </div>
@@ -957,7 +1023,7 @@ export default function App() {
               </div>
             )}
 
-            {/* --- VIEW 6: CONFIGURAÇÕES COMPLETO --- */}
+            {/* --- VIEW 6: CONFIGURAÇÕES COMPLETAS (ALTAMENTE EXPANDIDAS E ROBUSTAS) --- */}
             {activeMenu === 'Configurações' && (
               <div style={{ width: '100%', maxWidth: '900px' }}>
                 <div style={{ marginBottom: '32px' }}>
@@ -965,41 +1031,119 @@ export default function App() {
                   <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px', letterSpacing: '-1.5px' }}>Configurações Globais</h1>
                 </div>
 
-                <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '24px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '20px' }}>Integrações de API (Motores de Elite)</h3>
+                <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '32px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px' }}>Chaves lógicas de API (Modelos de Elite)</h3>
                   
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>OpenAI API Key</label>
-                    <input type="password" style={styles.input} value={apiKeyOpenAI} onChange={(e) => setApiKeyOpenAI(e.target.value)} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>OpenAI API Key</label>
+                      <input type="password" style={styles.input} value={apiKeyOpenAI} onChange={(e) => setApiKeyOpenAI(e.target.value)} />
+                    </div>
+
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Anthropic API Key (Claude)</label>
+                      <input type="password" style={styles.input} value={apiKeyAnthropic} onChange={(e) => setApiKeyAnthropic(e.target.value)} />
+                    </div>
                   </div>
 
-                  <div style={styles.formGroup}>
-                    <label style={styles.label}>Anthropic API Key (Claude)</label>
-                    <input type="password" style={styles.input} value={apiKeyAnthropic} onChange={(e) => setApiKeyAnthropic(e.target.value)} />
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px', marginTop: '12px' }}>Parâmetros da Instância de IA</h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '24px', marginBottom: '24px' }}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Temperatura de Criatividade: {aiTemperature}</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '10px' }}>
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Fria</span>
+                        <input 
+                          type="range" 
+                          min="0.1" 
+                          max="1.0" 
+                          step="0.1"
+                          style={{ flex: 1, cursor: 'pointer', accentColor: 'var(--accent-primary)' }}
+                          value={aiTemperature} 
+                          onChange={(e) => setAiTemperature(parseFloat(e.target.value))} 
+                        />
+                        <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Livre</span>
+                      </div>
+                    </div>
+
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Limite de Chamadas por Minuto (Rate Limit)</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <input type="number" style={{ ...styles.input, width: '100px' }} value={rateLimit} onChange={(e) => setRateLimit(parseInt(e.target.value))} />
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>requisições / minuto por utilizador mestre</span>
+                      </div>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px', marginTop: '12px' }}>Parâmetros de Rede e Domínio</h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '20px', marginBottom: '24px' }}>
                     <div style={styles.formGroup}>
                       <label style={styles.label}>Região do Servidor</label>
                       <select value={serverRegion} onChange={(e) => setServerRegion(e.target.value)} style={{ ...styles.input, background: '#000', cursor: 'pointer' }}>
-                        <option value="us-east-1">Estados Unidos (us-east-1)</option>
                         <option value="sa-east-1">São Paulo, Brasil (sa-east-1)</option>
+                        <option value="us-east-1">Estados Unidos (us-east-1)</option>
                         <option value="eu-central-1">Frankfurt, Alemanha (eu-central-1)</option>
                       </select>
                     </div>
 
                     <div style={styles.formGroup}>
-                      <label style={styles.label}>Status do Banco de Dados</label>
-                      <div style={{ ...styles.input, display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.3)', pointerEvents: 'none' }}>
-                        <span style={{ fontSize: '13px' }}>{dbStatus}</span>
-                        <span style={{ fontSize: '10px', color: 'var(--accent-secondary)', fontFamily: 'var(--font-mono)' }}>● ONLINE</span>
-                      </div>
+                      <label style={styles.label}>Domínio Customizado (Apontamento DNS)</label>
+                      <input type="text" style={styles.input} value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} placeholder="Ex: app.seudominio.com" />
+                    </div>
+                  </div>
+
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px', marginTop: '12px' }}>Infraestrutura SMTP & Servidores de Disparo</h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 1.5fr', gap: '16px', marginBottom: '24px' }}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>SMTP Host</label>
+                      <input type="text" style={styles.input} value={smtpHost} onChange={(e) => setSmtpHost(e.target.value)} />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>SMTP Port</label>
+                      <input type="text" style={styles.input} value={smtpPort} onChange={(e) => setSmtpPort(e.target.value)} />
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>SMTP User Auth</label>
+                      <input type="text" style={styles.input} value={smtpUser} onChange={(e) => setSmtpUser(e.target.value)} />
+                    </div>
+                  </div>
+
+                  <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '12px', marginTop: '12px' }}>Rotinas de Backups e Cache</h3>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '24px' }}>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Frequência de Backup Automatizado</label>
+                      <select value={backupSchedule} onChange={(e) => setBackupSchedule(e.target.value)} style={{ ...styles.input, background: '#000', cursor: 'pointer' }}>
+                        <option value="daily">Rotina Diária (Madrugada)</option>
+                        <option value="weekly">Rotina Semanal (Domingos)</option>
+                        <option value="manual">Controle puramente Manual</option>
+                      </select>
+                    </div>
+
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Limite Retido de Backups Estáveis</label>
+                      <input type="number" style={styles.input} value={dbBackupLimit} onChange={(e) => setDbBackupLimit(parseInt(e.target.value))} />
                     </div>
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
                     <div>
-                      <h4 style={{ fontSize: '14px', fontWeight: '700' }}>Certificado SSL Dedicado</h4>
+                      <h4 style={{ fontSize: '14px', fontWeight: '700' }}>Otimização Edge Caching CDN</h4>
+                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Cache de baixa latência distribuído globalmente.</p>
+                    </div>
+                    <button 
+                      onClick={() => setEdgeCaching(!edgeCaching)} 
+                      style={{ ...styles.primaryButton, padding: '8px 16px', background: edgeCaching ? 'var(--accent-secondary)' : 'rgba(255,255,255,0.05)', color: edgeCaching ? '#000' : '#fff' }}
+                    >
+                      {edgeCaching ? 'Ativo' : 'Inativo'}
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px', borderTop: '1px solid var(--border-color)', paddingTop: '24px' }}>
+                    <div>
+                      <h4 style={{ fontSize: '14px', fontWeight: '700' }}>Certificado SSL Dedicado (TLS 1.3)</h4>
                       <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>Forçar conexões HTTPS seguras nativamente.</p>
                     </div>
                     <button 
@@ -1105,7 +1249,7 @@ const styles = {
     background: 'var(--bg-card)',
     backdropFilter: 'blur(30px)',
     border: '1px solid var(--border-color)',
-    borderRadius: '16px',
+    borderRadius: '8px',
     padding: '48px',
     width: '100%',
     maxWidth: '600px',
@@ -1119,8 +1263,8 @@ const styles = {
     margin: '30px 0'
   },
   dot: {
-    height: '10px',
-    borderRadius: '5px',
+    height: '6px',
+    borderRadius: '3px',
     transition: 'all 0.3s ease'
   },
   primaryButton: {
@@ -1129,7 +1273,7 @@ const styles = {
     fontWeight: '700',
     padding: '14px 28px',
     border: 'none',
-    borderRadius: '8px',
+    borderRadius: '6px',
     fontSize: '14px',
     cursor: 'pointer',
     transition: 'transform 0.2s',
@@ -1152,14 +1296,14 @@ const styles = {
     background: 'rgba(0,0,0,0.5)',
     border: '1px solid var(--border-color)',
     padding: '14px 16px',
-    borderRadius: '8px',
+    borderRadius: '6px',
     color: '#fff',
     fontSize: '14px',
     outline: 'none',
   },
   themeCard: {
     background: 'var(--bg-card)',
-    borderRadius: '12px',
+    borderRadius: '8px',
     padding: '24px',
     cursor: 'pointer',
     textAlign: 'center',
@@ -1210,7 +1354,7 @@ const styles = {
     alignItems: 'center',
     gap: '12px',
     padding: '12px 14px',
-    borderRadius: '8px',
+    borderRadius: '6px',
     cursor: 'pointer',
     fontSize: '13px',
     fontWeight: '600',
@@ -1219,7 +1363,7 @@ const styles = {
   sidebarProfile: {
     background: 'rgba(255,255,255,0.01)',
     padding: '12px',
-    borderRadius: '10px',
+    borderRadius: '8px',
     border: '1px solid rgba(255,255,255,0.02)',
     display: 'flex',
     alignItems: 'center',
@@ -1230,12 +1374,41 @@ const styles = {
     overflowY: 'auto',
     background: 'radial-gradient(circle at 50% 0%, #110d24 0%, var(--bg-main) 60%)'
   },
+  headerProfileContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '8px',
+    padding: '20px 24px',
+    marginBottom: '32px',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
+  },
+  headerAvatar: {
+    width: '48px',
+    height: '48px',
+    borderRadius: '50%',
+    background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: '800',
+    fontSize: '18px',
+    color: '#000'
+  },
+  headerStatsMono: {
+    textAlign: 'right',
+    fontFamily: 'var(--font-mono)',
+    fontSize: '12px',
+    fontWeight: '700'
+  },
   canvaLayout: {
     display: 'grid',
     gridTemplateColumns: '280px 1fr',
     height: '560px',
     border: '1px solid var(--border-color)',
-    borderRadius: '16px',
+    borderRadius: '8px',
     overflow: 'hidden'
   },
   canvaSidebar: {
@@ -1249,7 +1422,7 @@ const styles = {
     background: 'rgba(255,255,255,0.02)',
     border: '1px solid var(--border-color)',
     padding: '12px',
-    borderRadius: '8px',
+    borderRadius: '6px',
     color: '#fff',
     outline: 'none',
     marginBottom: '16px',
@@ -1264,7 +1437,7 @@ const styles = {
   draggableCard: {
     background: 'rgba(255,255,255,0.01)',
     border: '1px solid var(--border-color)',
-    borderRadius: '8px',
+    borderRadius: '6px',
     padding: '14px 10px',
     textAlign: 'center',
     cursor: 'grab',
@@ -1284,7 +1457,7 @@ const styles = {
     background: 'rgba(10, 10, 14, 0.95)',
     border: '1px solid var(--accent-primary)',
     padding: '16px',
-    borderRadius: '12px',
+    borderRadius: '8px',
     boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
     minWidth: '220px'
   },
@@ -1292,7 +1465,7 @@ const styles = {
     background: 'rgba(239, 68, 68, 0.08)',
     color: '#ef4444',
     border: '1px solid rgba(239, 68, 68, 0.15)',
-    borderRadius: '6px',
+    borderRadius: '4px',
     padding: '4px 8px',
     fontSize: '10px',
     cursor: 'pointer',
@@ -1304,7 +1477,7 @@ const styles = {
     display: 'flex',
     flexDirection: 'column',
     height: '480px',
-    borderRadius: '16px',
+    borderRadius: '8px',
     overflow: 'hidden'
   },
   chatHistory: {
@@ -1318,7 +1491,7 @@ const styles = {
   chatBubble: {
     maxWidth: '80%',
     padding: '12px 16px',
-    borderRadius: '12px',
+    borderRadius: '8px',
     fontSize: '13px',
     lineHeight: '1.5'
   },
@@ -1326,7 +1499,7 @@ const styles = {
     flexGrow: 1,
     background: 'rgba(0,0,0,0.5)',
     border: '1px solid var(--border-color)',
-    borderRadius: '8px',
+    borderRadius: '6px',
     padding: '12px',
     color: '#fff',
     outline: 'none',
@@ -1336,11 +1509,11 @@ const styles = {
     background: 'linear-gradient(90deg, rgba(16,185,129,0.05) 0%, transparent 100%)',
     borderLeft: '4px solid var(--accent-secondary)',
     padding: '16px 20px',
-    borderRadius: '0 12px 12px 0'
+    borderRadius: '0 8px 8px 0'
   },
   rootStatCard: {
     padding: '20px',
-    borderRadius: '12px'
+    borderRadius: '8px'
   },
   badgeMono: {
     fontSize: '10px',
@@ -1368,7 +1541,7 @@ const styles = {
   luxuryDashboardCard: {
     background: 'var(--bg-card)',
     border: '1px solid var(--border-color)',
-    borderRadius: '16px',
+    borderRadius: '8px',
     padding: '24px',
     boxShadow: '0 8px 32px var(--accent-glow)'
   }
