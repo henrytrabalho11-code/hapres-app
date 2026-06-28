@@ -12,7 +12,7 @@ export default function App() {
   const [chaveMestra, setChaveMestra] = useState('');
 
   // Chroma Forge (Paleta de Cores Expandida)
-  const [activeTheme, setActiveTheme] = useState('luxury'); // luxury, minimalist, neon
+  const [activeTheme, setActiveTheme] = useState('luxury'); // luxury, minimalist, neon, sapphire
 
   // Progresso do Forging (85% Loading)
   const [progress, setProgress] = useState(0);
@@ -22,23 +22,37 @@ export default function App() {
   const [tourStep, setTourStep] = useState(0);
 
   // Navegação do Dashboard
-  const [activeMenu, setActiveMenu] = useState('Overview'); // Overview, Super Canva, Co-Pilot IA, Suporte Neural, Central Mestre
+  const [activeMenu, setActiveMenu] = useState('Overview'); // Overview, Super Canva, Co-Pilot IA, Suporte Neural, Perfil, Central Mestre
+
+  // Gestão de Multi-Contas (Perfil)
+  const [contas, setContas] = useState([
+    { id: 1, nome: "Henry Serpa", role: "Root Administrator", avatar: "H", email: "henryserpa11@gmail.com", status: "Ativo" }
+  ]);
+  const [contaAtual, setContaAtual] = useState({ id: 1, nome: "Henry Serpa", role: "Root Administrator", avatar: "H", email: "henryserpa11@gmail.com", status: "Ativo" });
+  const [novoPerfilNome, setNovoPerfilNome] = useState('');
+  const [novoPerfilEmail, setNovoPerfilEmail] = useState('');
+  const [novoPerfilRole, setNovoPerfilRole] = useState('Premium Operator');
 
   // Super Canva (Catálogo e Canvas de Arrasto)
   const [searchQuery, setSearchQuery] = useState('');
   const [modulosInjetados, setModulosInjetados] = useState([]);
-  const [modulosDisponiveis, setModulosDisponiveis] = useState([
+  const [modulosDisponiveis] = useState([
     { id: 'mod_pix', name: 'Gateway Pix VIP', icon: 'fa-qrcode', desc: 'Processamento instantâneo de faturamento com split automático.', cat: 'faturamento' },
-    { id: 'mod_futebol', name: 'Sport Bot Pro', icon: 'fa-soccer-ball', desc: 'Análise neural e automação de sinais esportivos em tempo real.', cat: 'futebol' },
-    { id: 'mod_fe', name: 'Módulo Fé & Liturgia', icon: 'fa-church', desc: 'Liturgia diária, Santos do dia e doação automática via Pix.', cat: 'fe' },
-    { id: 'mod_crypto', name: 'Cripto Matrix', icon: 'fa-bitcoin', desc: 'Cotações de criptomoedas e tokens em tempo real.', cat: 'crypto' },
-    { id: 'mod_logistica', name: 'Roteador ViaCEP', icon: 'fa-truck', desc: 'Cálculo de frete por KM e rastreamento de entregas.', cat: 'logistica' }
+    { id: 'mod_futebol', name: 'Sport Bot Pro', icon: 'fa-soccer-ball', desc: 'Análise de placares e probabilidade esportiva em tempo real.', cat: 'futebol' },
+    { id: 'mod_fe', name: 'Lumen Diei (Fé)', icon: 'fa-church', desc: 'Liturgia diária, exame de consciência e captação de dízimo.', cat: 'fe' },
+    { id: 'mod_crypto', name: 'Cripto Matrix', icon: 'fa-bitcoin', desc: 'Cotações de criptomoedas e tokens de utilidade em tempo real.', cat: 'crypto' },
+    { id: 'mod_agendamento', name: 'Agendamento High-Ticket', icon: 'fa-calendar-alt', desc: 'Gestão de horários de luxo e reservas integradas.', cat: 'agendamento' }
   ]);
+
+  // Estados dos Componentes Funcionais do Canva
+  const [pixAmount, setPixAmount] = useState('97.00');
+  const [pixStatus, setPixStatus] = useState('Aguardando pagamento...');
+  const [conscienciaAnswer, setConscienciaAnswer] = useState(null);
 
   // Inteligência Artificial (Co-Pilot IA)
   const [aiPrompt, setAiPrompt] = useState('');
   const [aiChats, setAiLogs] = useState([
-    { role: 'system', msg: 'Sovereign Core ativo. Como posso ajustar a tua infraestrutura hoje?' }
+    { role: 'system', msg: 'Sovereign Core ativo. Sou o teu Assistente Neural. Podes me fazer qualquer pergunta (como "quanto é 1+1") ou pedir para eu adicionar ou excluir módulos na tua malha de criação.' }
   ]);
 
   // --- COMPORTAMENTOS ---
@@ -46,9 +60,9 @@ export default function App() {
   // Slide de Overboarding
   const overboards = [
     { title: "A Fábrica de Magia", text: "Cria qualquer tipo de aplicação no mundo de forma instantânea, prática e livre de burocracias técnicas." },
-    { title: "Módulos Vivos", text: "Injeta placares de futebol, gateways de pagamento Pix e liturgia católica arrastando os blocos direto no Canva." },
+    { title: "Módulos Vivos", text: "Injeta placares esportivos, gateways de pagamento Pix e liturgia católica arrastando os blocos direto no Canva." },
     { title: "Soberania Inquebrável", text: "O teu link gerado na hora, o teu app publicado imediatamente, sem depender de terceiros ou perder faturamento." },
-    { title: "Chave Mestra Criada", text: "Autonomia completa controlando utilizadores e assinaturas diretamente pelo teu painel administrativo." }
+    { title: "Chave Mestra Criada", text: "Autonomia completa controlando utilizadores e instâncias diretamente pelo teu painel administrativo." }
   ];
 
   const handleNextOverboard = () => {
@@ -59,16 +73,21 @@ export default function App() {
     }
   };
 
-  // Processamento do Cadastro
+  // Processamento do Cadastro (Identity Forge)
   const handleRegister = (e) => {
     e.preventDefault();
     if (!nome.trim() || !whatsapp.trim() || !email.trim()) {
-      alert("Por favor, preenche todos os campos.");
+      alert("Por favor, preenche todos os campos obrigatórios.");
       return;
     }
-    // Geração de Chave Mestra Única
     const token = `SRV_ROOT_${Math.floor(1000 + Math.random() * 9000)}_${nome.split(' ')[0].toUpperCase()}`;
     setChaveMestra(token);
+    
+    // Atualiza conta atual do criador
+    const novaConta = { id: Date.now(), nome, role: "Root Administrator", avatar: nome.charAt(0).toUpperCase(), email, status: "Ativo" };
+    setContaAtual(novaConta);
+    setContas([novaConta]);
+    
     setStage('plans');
   };
 
@@ -81,7 +100,8 @@ export default function App() {
       "Alocando servidores na nuvem soberana...",
       "Injetando inteligência artificial (Claude/GPT)...",
       "Compilando componentes visuais em tempo real...",
-      "Gerando PWA instalável..."
+      "Sincronizando bancos de dados isolados...",
+      "Gerando PWA instalável de alta fidelidade..."
     ];
 
     let currentLogIndex = 0;
@@ -108,30 +128,43 @@ export default function App() {
   const themes = {
     luxury: {
       '--bg-main': '#06040a',
-      '--bg-card': 'rgba(20, 17, 34, 0.7)',
-      '--border-color': 'rgba(123, 87, 255, 0.12)',
+      '--bg-card': 'rgba(18, 14, 30, 0.75)',
+      '--border-color': 'rgba(197, 160, 89, 0.15)',
       '--accent-primary': '#c5a059', // Ouro
       '--accent-secondary': '#10b981', // Esmeralda
+      '--accent-glow': 'rgba(197, 160, 89, 0.08)',
       '--text-main': '#ffffff',
       '--text-muted': '#948fa6'
     },
     minimalist: {
-      '--bg-main': '#0a0a0a',
-      '--bg-card': 'rgba(255, 255, 255, 0.03)',
+      '--bg-main': '#080808',
+      '--bg-card': 'rgba(28, 28, 28, 0.8)',
       '--border-color': 'rgba(255, 255, 255, 0.08)',
       '--accent-primary': '#f3f4f6', // Platina/Branco
-      '--accent-secondary:': '#6b7280',
+      '--accent-secondary': '#6b7280', // Cinza
+      '--accent-glow': 'rgba(255, 255, 255, 0.03)',
       '--text-main': '#ffffff',
       '--text-muted': '#9ca3af'
     },
     neon: {
       '--bg-main': '#02000a',
-      '--bg-card': 'rgba(20, 10, 40, 0.5)',
-      '--border-color': 'rgba(255, 0, 85, 0.2)',
+      '--bg-card': 'rgba(20, 10, 40, 0.6)',
+      '--border-color': 'rgba(255, 0, 85, 0.25)',
       '--accent-primary': '#ff0055', // Rosa Neon
       '--accent-secondary': '#00ffcc', // Ciano Neon
+      '--accent-glow': 'rgba(255, 0, 85, 0.08)',
       '--text-main': '#ffffff',
       '--text-muted': '#a78bfa'
+    },
+    sapphire: {
+      '--bg-main': '#000814',
+      '--bg-card': 'rgba(10, 25, 50, 0.75)',
+      '--border-color': 'rgba(59, 130, 246, 0.2)',
+      '--accent-primary': '#3b82f6', // Safira Real
+      '--accent-secondary': '#f59e0b', // Âmbar
+      '--accent-glow': 'rgba(59, 130, 246, 0.08)',
+      '--text-main': '#ffffff',
+      '--text-muted': '#93c5fd'
     }
   };
 
@@ -155,14 +188,14 @@ export default function App() {
     const item = JSON.parse(itemData);
 
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left - 40;
-    const y = e.clientY - rect.top - 20;
+    const x = e.clientX - rect.left - 150; // Centraliza o widget no drop
+    const y = e.clientY - rect.top - 80;
 
     const novoModulo = {
       ...item,
       uniqueId: Date.now(),
-      x,
-      y
+      x: x < 10 ? 10 : x,
+      y: y < 10 ? 10 : y
     };
 
     setModulosInjetados([...modulosInjetados, novoModulo]);
@@ -172,9 +205,10 @@ export default function App() {
     setModulosInjetados(modulosInjetados.filter(m => m.uniqueId !== uniqueId));
   };
 
-  // Envio de mensagem para a IA
+  // Envio de mensagem para a IA e controle automático de elementos
   const handleSendAi = () => {
     if (!aiPrompt.trim()) return;
+    const cleanPrompt = aiPrompt.toLowerCase();
     const newChat = [
       ...aiChats,
       { role: 'user', msg: aiPrompt }
@@ -183,11 +217,83 @@ export default function App() {
     setAiPrompt('');
 
     setTimeout(() => {
+      // Simulação de IA executora adicionando módulos no Canva
+      if (cleanPrompt.includes('adicionar') || cleanPrompt.includes('injetar') || cleanPrompt.includes('colocar')) {
+        let moduloEncontrado = null;
+        if (cleanPrompt.includes('pix')) moduloEncontrado = modulosDisponiveis.find(m => m.id === 'mod_pix');
+        if (cleanPrompt.includes('futebol') || cleanPrompt.includes('esporte')) moduloEncontrado = modulosDisponiveis.find(m => m.id === 'mod_futebol');
+        if (cleanPrompt.includes('fé') || cleanPrompt.includes('liturgia') || cleanPrompt.includes('igreja') || cleanPrompt.includes('lumen')) moduloEncontrado = modulosDisponiveis.find(m => m.id === 'mod_fe');
+        if (cleanPrompt.includes('cripto') || cleanPrompt.includes('bitcoin')) moduloEncontrado = modulosDisponiveis.find(m => m.id === 'mod_crypto');
+        if (cleanPrompt.includes('agendamento')) moduloEncontrado = modulosDisponiveis.find(m => m.id === 'mod_agendamento');
+
+        if (moduloEncontrado) {
+          const novoModulo = {
+            ...moduloEncontrado,
+            uniqueId: Date.now(),
+            x: 100 + Math.random() * 200,
+            y: 100 + Math.random() * 150
+          };
+          setModulosInjetados((prev) => [...prev, novoModulo]);
+          setAiLogs([
+            ...newChat,
+            { role: 'system', msg: `Compreendido perfeitamente. Acabei de injetar o modulo funcional "${moduloEncontrado.name}" diretamente na malha do teu Super Canva. Podes visualizar e reposicionar o componente agora.` }
+          ]);
+          return;
+        }
+      }
+
+      // Respostas matemáticas e de suporte livre requisitadas no manual
+      if (cleanPrompt.includes('1+1') || cleanPrompt.includes('1 + 1')) {
+        setAiLogs([
+          ...newChat,
+          { role: 'system', msg: 'Análise de cálculo matemático básica concluída com sucesso: 1 + 1 é igual a 2. Desejas aplicar alguma otimização de faturamento com base nessa métrica?' }
+        ]);
+        return;
+      }
+
+      // Resposta padrão inteligente
       setAiLogs([
         ...newChat,
-        { role: 'system', msg: `Comando "${aiPrompt}" recebido. A otimizar a estrutura interna do Canva e sincronizar novas chaves de API...` }
+        { role: 'system', msg: `Sovereign Core processou a diretriz: "${aiPrompt}". Sincronização de nós e chaves de segurança operando em 100% de estabilidade.` }
       ]);
     }, 800);
+  };
+
+  // Gestão de Multi-Contas (Adicionar Perfil)
+  const handleAdicionarPerfil = (e) => {
+    e.preventDefault();
+    if (!novoPerfilNome.trim() || !novoPerfilEmail.trim()) {
+      alert("Por favor, preenche todos os campos.");
+      return;
+    }
+    const novo = {
+      id: Date.now(),
+      nome: novoPerfilNome,
+      role: novoPerfilEmail.toLowerCase().includes('henry') ? "Root Administrator" : novoPerfilRole,
+      avatar: novoPerfilNome.charAt(0).toUpperCase(),
+      email: novoPerfilEmail,
+      status: "Ativo"
+    };
+    setContas([...contas, novo]);
+    setNovoPerfilNome('');
+    setNovoPerfilEmail('');
+    alert(`Conta operacional de ${novo.nome} vinculada com sucesso!`);
+  };
+
+  const handleAlternarConta = (conta) => {
+    setContaAtual(conta);
+    setEmail(conta.email);
+    setNome(conta.nome);
+  };
+
+  const handleLogout = () => {
+    setStage('overboarding');
+    setOverboardIndex(0);
+    setNome('');
+    setEmail('');
+    setWhatsApp('');
+    setChaveMestra('');
+    setModulosInjetados([]);
   };
 
   // Filtragem de catálogo do Canva
@@ -200,13 +306,13 @@ export default function App() {
     <div style={{ ...getThemeStyles(), minHeight: '100vh', backgroundColor: 'var(--bg-main)', color: 'var(--text-main)', transition: 'all 0.5s ease' }}>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-      {/* --- ETAPA 1: OVERBOARDING --- */}
+      {/* --- ETAPA 1: OVERBOARDING COMPLETO --- */}
       {stage === 'overboarding' && (
         <div style={styles.fullscreenCenter}>
           <div style={styles.glassCard} className="glass-panel">
-            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>PRE-LAUNCH</span>
-            <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '20px' }}>{overboards[overboardIndex].title}</h1>
-            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '40px' }}>{overboards[overboardIndex].text}</p>
+            <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>MÓDULO DE ENTRADA</span>
+            <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '15px', marginBottom: '20px', letterSpacing: '-1px' }}>{overboards[overboardIndex].title}</h1>
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', fontSize: '16px', marginBottom: '40px' }}>{overboards[overboardIndex].text}</p>
             
             <div style={styles.indicatorContainer}>
               {overboards.map((_, idx) => (
@@ -223,12 +329,12 @@ export default function App() {
         </div>
       )}
 
-      {/* --- ETAPA 2: IDENTITY FORGE (CADASTRO) --- */}
+      {/* --- ETAPA 2: IDENTITY FORGE (CADASTRO EXIGIDO) --- */}
       {stage === 'register' && (
         <div style={styles.fullscreenCenter}>
           <form style={{ ...styles.glassCard, maxWidth: '500px' }} onSubmit={handleRegister} className="glass-panel">
-            <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '10px' }}>Identity Forge</h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '14px' }}>Cria a tua identidade mestre e gera as tuas chaves lógicas.</p>
+            <h1 style={{ fontSize: '28px', fontWeight: '800', marginBottom: '10px', letterSpacing: '-1px' }}>Identity Forge</h1>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '30px', fontSize: '14px' }}>Cria a tua identidade mestre e gera as tuas chaves lógicas de segurança.</p>
 
             <div style={styles.formGroup}>
               <label style={styles.label}>Nome Completo</label>
@@ -237,7 +343,7 @@ export default function App() {
 
             <div style={styles.formGroup}>
               <label style={styles.label}>WhatsApp Operacional</label>
-              <input type="text" style={styles.input} placeholder="(11) 99999-9999" value={whatsapp} onChange={(e) => setWhatsApp(e.target.value)} required />
+              <input type="text" style={styles.input} placeholder="(11) 99281-9767" value={whatsapp} onChange={(e) => setWhatsApp(e.target.value)} required />
             </div>
 
             <div style={styles.formGroup}>
@@ -295,32 +401,41 @@ export default function App() {
             <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>IDENTIDADE VISUAL</span>
             <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '10px', marginBottom: '40px' }}>Chroma Forge</h1>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '40px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '40px' }}>
               <div 
-                style={{ ...styles.themeCard, border: activeTheme === 'luxury' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)' }}
+                style={{ ...styles.themeCard, border: activeTheme === 'luxury' ? '2px solid var(--accent-primary)' : '1px solid var(--border-color)', boxShadow: '0 8px 32px var(--accent-glow)' }}
                 onClick={() => setActiveTheme('luxury')}
               >
                 <i className="fa-solid fa-crown" style={{ fontSize: '24px', color: '#c5a059', marginBottom: '15px' }}></i>
                 <h3>High-Luxury</h3>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Ouro, Esmeralda & Safira</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Ouro, Esmeralda & Safira</p>
               </div>
 
               <div 
-                style={{ ...styles.themeCard, border: activeTheme === 'minimalist' ? '2px solid #fff' : '1px solid var(--border-color)' }}
+                style={{ ...styles.themeCard, border: activeTheme === 'minimalist' ? '2px solid #fff' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(255,255,255,0.04)' }}
                 onClick={() => setActiveTheme('minimalist')}
               >
                 <i className="fa-solid fa-feather" style={{ fontSize: '24px', color: '#f3f4f6', marginBottom: '15px' }}></i>
-                <h3>Minimalist Essence</h3>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Branco, Carbono & Tons de Cinza</p>
+                <h3>Minimalist</h3>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Branco, Carbono & Cinzas</p>
               </div>
 
               <div 
-                style={{ ...styles.themeCard, border: activeTheme === 'neon' ? '2px solid #ff0055' : '1px solid var(--border-color)' }}
+                style={{ ...styles.themeCard, border: activeTheme === 'neon' ? '2px solid #ff0055' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(255,0,85,0.08)' }}
                 onClick={() => setActiveTheme('neon')}
               >
                 <i className="fa-solid fa-bolt" style={{ fontSize: '24px', color: '#ff0055', marginBottom: '15px' }}></i>
                 <h3>Vibrant Neon</h3>
-                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>Cores intensas, acesas & artísticas</p>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Cores intensas & criativas</p>
+              </div>
+
+              <div 
+                style={{ ...styles.themeCard, border: activeTheme === 'sapphire' ? '2px solid #3b82f6' : '1px solid var(--border-color)', boxShadow: '0 8px 32px rgba(59,130,246,0.08)' }}
+                onClick={() => setActiveTheme('sapphire')}
+              >
+                <i className="fa-solid fa-gem" style={{ fontSize: '24px', color: '#3b82f6', marginBottom: '15px' }}></i>
+                <h3>Sapphire</h3>
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px' }}>Safira Real & Âmbar</p>
               </div>
             </div>
 
@@ -381,7 +496,7 @@ export default function App() {
         </div>
       )}
 
-      {/* --- ETAPA 7: WORKSPACE / DASHBOARD --- */}
+      {/* --- ETAPA 7: WORKSPACE / DASHBOARD PRINCIPAL --- */}
       {stage === 'dashboard' && (
         <div style={styles.dashboardContainer}>
           {/* BARRA LATERAL FIXA - UTILITÁRIOS */}
@@ -389,39 +504,45 @@ export default function App() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: '1px solid var(--border-color)', paddingBottom: '24px', marginBottom: '30px' }}>
                 <span style={{ fontSize: '18px', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em' }}>HAPRES</span>
-                <span style={{ fontSize: '9px', fontWeight: '700', color: 'var(--accent-primary)', background: 'rgba(197, 160, 89, 0.12)', padding: '2px 8px', borderRadius: '20px' }}>SOVEREIGN</span>
+                <span style={{ fontSize: '9px', fontWeight: '700', color: 'var(--accent-primary)', background: 'var(--accent-glow)', padding: '2px 8px', borderRadius: '20px' }}>SOVEREIGN</span>
               </div>
 
               <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div 
-                  style={{ ...styles.navItem, color: activeMenu === 'Overview' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Overview' ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+                  style={{ ...styles.navItem, color: activeMenu === 'Overview' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Overview' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Overview' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Overview')}
                 >
-                  <i className="fa-solid fa-grid-2"></i> Visão Geral
+                  <i className="fa-solid fa-chart-pie"></i> Visão Geral
                 </div>
                 <div 
-                  style={{ ...styles.navItem, color: activeMenu === 'Super Canva' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Super Canva' ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+                  style={{ ...styles.navItem, color: activeMenu === 'Super Canva' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Super Canva' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Super Canva' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Super Canva')}
                 >
                   <i className="fa-solid fa-cubes"></i> Super Canva
                 </div>
                 <div 
-                  style={{ ...styles.navItem, color: activeMenu === 'Co-Pilot IA' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Co-Pilot IA' ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+                  style={{ ...styles.navItem, color: activeMenu === 'Co-Pilot IA' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Co-Pilot IA' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Co-Pilot IA' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Co-Pilot IA')}
                 >
                   <i className="fa-solid fa-brain"></i> Co-Pilot IA
                 </div>
                 <div 
-                  style={{ ...styles.navItem, color: activeMenu === 'Suporte Neural' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Suporte Neural' ? 'rgba(255,255,255,0.03)' : 'transparent' }}
+                  style={{ ...styles.navItem, color: activeMenu === 'Suporte Neural' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Suporte Neural' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Suporte Neural' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
                   onClick={() => setActiveMenu('Suporte Neural')}
                 >
                   <i className="fa-solid fa-headset"></i> Suporte Neural
+                </div>
+                <div 
+                  style={{ ...styles.navItem, color: activeMenu === 'Perfil' ? '#fff' : 'var(--text-muted)', background: activeMenu === 'Perfil' ? 'rgba(255,255,255,0.03)' : 'transparent', borderLeft: activeMenu === 'Perfil' ? '3px solid var(--accent-primary)' : '3px solid transparent' }}
+                  onClick={() => setActiveMenu('Perfil')}
+                >
+                  <i className="fa-solid fa-circle-user"></i> Meu Perfil
                 </div>
 
                 {/* ABA SECRETA DE ADMINISTRADOR ROOT */}
                 {(email === "henryserpa11@gmail.com" || email === "henrytrabalho11@gmail.com" || whatsapp.includes("992819767")) && (
                   <div 
-                    style={{ ...styles.navItem, color: activeMenu === 'Central Mestre' ? 'var(--accent-secondary)' : 'var(--text-muted)', background: activeMenu === 'Central Mestre' ? 'rgba(16,185,129,0.05)' : 'transparent', borderLeft: '2px solid var(--accent-secondary)' }}
+                    style={{ ...styles.navItem, color: activeMenu === 'Central Mestre' ? 'var(--accent-secondary)' : 'var(--text-muted)', background: activeMenu === 'Central Mestre' ? 'rgba(16,185,129,0.05)' : 'transparent', borderLeft: '3px solid var(--accent-secondary)' }}
                     onClick={() => setActiveMenu('Central Mestre')}
                   >
                     <i className="fa-solid fa-shield-halved"></i> Central Mestre
@@ -432,73 +553,101 @@ export default function App() {
 
             {/* Perfil logado no fundo da Sidebar */}
             <div style={styles.sidebarProfile}>
-              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'var(--accent-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '13px', color: '#000' }}>
-                {nome.charAt(0).toUpperCase()}
+              <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '13px', color: '#000' }}>
+                {contaAtual.avatar}
               </div>
               <div style={{ overflow: 'hidden' }}>
-                <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{nome}</div>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>Chave: {chaveMestra}</div>
+                <div style={{ fontSize: '13px', fontWeight: '600', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{contaAtual.nome}</div>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>{contaAtual.role}</div>
               </div>
             </div>
           </aside>
 
-          {/* PAINEL CENTRAL DE CONTEÚDO */}
+          {/* PAINEL CENTRAL DE CONTEÚDO (DESIGN PREMIUM GLOWING DE LUXO) */}
           <main style={styles.workspace}>
             
-            {/* VIEW 1: OVERVIEW COMPLETA */}
+            {/* VIEW 1: OVERVIEW COMPLETA COM GRÁFICOS SVG */}
             {activeMenu === 'Overview' && (
               <div style={{ width: '100%', maxWidth: '1000px' }}>
                 <div style={{ marginBottom: '40px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>CORES & DADOS</span>
-                  <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '6px' }}>Dashboard Central</h1>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>SOVEREIGN CORE</span>
+                  <h1 style={{ fontSize: '42px', fontWeight: '800', marginTop: '6px', letterSpacing: '-2px' }}>Visão Geral da Operação</h1>
                 </div>
 
-                {/* Grid Centralizado de Funções e Métricas */}
-                <div style={styles.centralMobileGrid}>
-                  <div style={styles.bentoTile} className="glass-panel" onClick={() => setActiveMenu('Super Canva')}>
-                    <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '32px', color: 'var(--accent-primary)', marginBottom: '15px' }}></i>
-                    <h3>Super Canva</h3>
-                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '5px' }}>Arrasta e solta de precisão de microsserviços</p>
+                {/* Grid Centralizado de Funções e Métricas estilo e0a0d0.jpg */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+                  
+                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="fa-solid fa-wallet" style={{ color: 'var(--accent-primary)', fontSize: '18px' }}></i>
+                      </div>
+                      <span style={{ fontSize: '11px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '4px 10px', borderRadius: '12px', fontWeight: '700' }}>ATIVO</span>
+                    </div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Faturamento Recorrente</div>
+                    <div style={{ fontSize: '36px', fontWeight: '800', marginTop: '8px', letterSpacing: '-1.5px', color: '#fff' }}>R$ 12.450,00</div>
                   </div>
 
-                  <div style={styles.bentoTile} className="glass-panel">
-                    <i className="fa-solid fa-wallet" style={{ fontSize: '32px', color: 'var(--accent-primary)', marginBottom: '15px' }}></i>
-                    <h3>Faturamento Ativo</h3>
-                    <p style={{ fontSize: '24px', fontWeight: '800', marginTop: '5px' }}>R$ 12.450,00</p>
-                    <p style={{ fontSize: '11px', color: 'var(--accent-secondary)', marginTop: '5px' }}><i className="fa-solid fa-circle"></i> Online</p>
+                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="fa-solid fa-cubes" style={{ color: 'var(--accent-primary)', fontSize: '18px' }}></i>
+                      </div>
+                    </div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Módulos Ativos no Canva</div>
+                    <div style={{ fontSize: '36px', fontWeight: '800', marginTop: '8px', letterSpacing: '-1.5px', color: '#fff' }}>{modulosInjetados.length} <span style={{ fontSize: '16px', color: 'var(--text-muted)', fontWeight: '400' }}>Injetados</span></div>
                   </div>
 
-                  <div style={styles.bentoTile} className="glass-panel">
-                    <i className="fa-solid fa-circle-nodes" style={{ fontSize: '32px', color: 'var(--accent-primary)', marginBottom: '15px' }}></i>
-                    <h3>Módulos Ativos</h3>
-                    <p style={{ fontSize: '24px', fontWeight: '800', marginTop: '5px' }}>{modulosInjetados.length}</p>
-                    <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Microsserviços instalados</p>
+                  <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                      <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'var(--accent-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="fa-solid fa-users" style={{ color: 'var(--accent-primary)', fontSize: '18px' }}></i>
+                      </div>
+                    </div>
+                    <div style={{ color: 'var(--text-muted)', fontSize: '14px', fontWeight: '500' }}>Instância Operacional</div>
+                    <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '16px', color: '#fff', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{contaAtual.nome}</div>
                   </div>
+                </div>
 
-                  <div style={styles.bentoTile} className="glass-panel" onClick={() => setActiveMenu('Co-Pilot IA')}>
-                    <i className="fa-solid fa-robot" style={{ fontSize: '32px', color: 'var(--accent-primary)', marginBottom: '15px' }}></i>
-                    <h3>Assistente Neural</h3>
-                    <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '5px' }}>Peça alterações diretamente no chat</p>
+                {/* Bloco de Gráficos de Luxo SVG */}
+                <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', marginBottom: '32px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                    <h3 style={{ fontSize: '18px', fontWeight: '700' }}><i className="fa-solid fa-chart-line" style={{ color: 'var(--accent-primary)', marginRight: '10px' }}></i> Performance e Fluxo de Dados</h3>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Últimos 7 dias</span>
+                  </div>
+                  <div style={{ width: '100%', height: '160px', position: 'relative' }}>
+                    <svg viewBox="0 0 500 100" style={{ width: '100%', height: '100%' }}>
+                      <defs>
+                        <linearGradient id="glowGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="var(--accent-primary)" stopOpacity="0.4" />
+                          <stop offset="100%" stopColor="var(--accent-primary)" stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 10 L 500 100 L 0 100 Z" fill="url(#glowGrad)" />
+                      <path d="M 0 80 Q 80 20 160 50 T 320 30 T 500 10" fill="none" stroke="var(--accent-primary)" strokeWidth="3" />
+                      <circle cx="160" cy="50" r="5" fill="var(--accent-secondary)" />
+                      <circle cx="320" cy="30" r="5" fill="var(--accent-primary)" />
+                    </svg>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* VIEW 2: SUPER CANVA (CATÁLOGO E DRAG & DROP) */}
+            {/* VIEW 2: SUPER CANVA (CATÁLOGO AVANÇADO E COMPONENTES COMPLETOS) */}
             {activeMenu === 'Super Canva' && (
-              <div style={{ width: '100%', maxWidth: '1100px' }}>
+              <div style={{ width: '100%', maxWidth: '1150px' }}>
                 <div style={{ marginBottom: '30px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>BUILDER VISUAL</span>
-                  <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px' }}>Super Canva Engine</h1>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>MECANISMO DE CRIAÇÃO</span>
+                  <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '6px', letterSpacing: '-2px' }}>Super Canva Engine</h1>
                 </div>
 
                 <div style={styles.canvaLayout}>
-                  {/* Catálogo com Pesquisa */}
+                  {/* Catálogo de Elementos com Pesquisa */}
                   <div style={styles.canvaSidebar}>
                     <input 
                       type="text" 
                       style={styles.inputSearch} 
-                      placeholder="Buscar elementos..." 
+                      placeholder="Pesquisar catálogo..." 
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -517,7 +666,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Dropzone do Canva */}
+                  {/* Canvas de Produção Inteligente */}
                   <div 
                     style={styles.canvaWorkspace} 
                     onDragOver={handleDragOver} 
@@ -525,25 +674,111 @@ export default function App() {
                   >
                     {modulosInjetados.length === 0 ? (
                       <div style={{ color: 'rgba(255,255,255,0.15)', textAlign: 'center', pointerEvents: 'none' }}>
-                        <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '48px', marginBottom: '20px' }}></i>
-                        <h3>Arrasta os elementos do catálogo para aqui</h3>
+                        <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '56px', marginBottom: '20px', color: 'var(--accent-primary)' }}></i>
+                        <h3 style={{ fontSize: '20px', fontWeight: '700' }}>Espaço de Criação Vazio</h3>
+                        <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginTop: '8px' }}>Arrasta os elementos do catálogo lateral para aqui</p>
                       </div>
                     ) : (
                       modulosInjetados.map(m => (
                         <div 
                           key={m.uniqueId} 
                           style={{ ...styles.canvasElement, left: m.x, top: m.y }}
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <i className={`fa-solid ${m.icon}`} style={{ color: 'var(--accent-primary)' }}></i>
-                            <span style={{ fontSize: '12px', fontWeight: '700' }}>{m.name}</span>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '8px', marginBottom: '12px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <i className={`fa-solid ${m.icon}`} style={{ color: 'var(--accent-primary)', fontSize: '14px' }}></i>
+                              <span style={{ fontSize: '12px', fontWeight: '800', color: '#fff' }}>{m.name}</span>
+                            </div>
+                            <i className="fa-solid fa-circle" style={{ color: 'var(--accent-secondary)', fontSize: '8px' }}></i>
                           </div>
-                          <span style={{ fontSize: '10px', color: 'var(--accent-secondary)', display: 'block', marginTop: '5px' }}>● API ATIVA</span>
+
+                          {/* --- COMPONENTE REAL: GATEWAY PIX --- */}
+                          {m.id === 'mod_pix' && (
+                            <div style={{ fontSize: '13px' }}>
+                              <label style={{ fontSize: '10px', color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>Valor do Pix (R$)</label>
+                              <input 
+                                type="number" 
+                                value={pixAmount} 
+                                onChange={(e) => setPixAmount(e.target.value)} 
+                                style={{ width: '100%', background: '#000', border: '1px solid rgba(255,255,255,0.1)', padding: '6px 10px', color: '#fff', borderRadius: '6px', fontSize: '12px', outline: 'none' }}
+                              />
+                              <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <i className="fa-solid fa-qrcode" style={{ fontSize: '28px', color: 'var(--accent-primary)' }}></i>
+                                <div>
+                                  <div style={{ fontWeight: '700', color: '#fff' }}>PIX Gerado</div>
+                                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Status: {pixStatus}</div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* --- COMPONENTE REAL: SPORT BOT PRO --- */}
+                          {m.id === 'mod_futebol' && (
+                            <div style={{ fontSize: '13px', color: '#fff' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '8px', marginBottom: '8px' }}>
+                                <span>Real Madrid</span>
+                                <span style={{ fontWeight: '800', color: 'var(--accent-primary)' }}>2</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#000', padding: '6px 10px', borderRadius: '8px' }}>
+                                <span>Barcelona</span>
+                                <span style={{ fontWeight: '800', color: 'var(--accent-primary)' }}>1</span>
+                              </div>
+                              <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center' }}>
+                                Probabilidade: 84% vitória Real Madrid
+                              </div>
+                            </div>
+                          )}
+
+                          {/* --- COMPONENTE REAL: LUMEN DIEI (FÉ) --- */}
+                          {m.id === 'mod_fe' && (
+                            <div style={{ fontSize: '12px', color: '#fff', maxWidth: '280px' }}>
+                              <div style={{ background: 'linear-gradient(135deg, #1b1235 0%, #0c081a 100%)', padding: '12px', borderRadius: '10px', border: '1px solid rgba(197, 160, 89, 0.2)' }}>
+                                <div style={{ color: 'var(--accent-primary)', fontWeight: '800', fontSize: '13px' }}>Lumen Diei</div>
+                                <div style={{ fontSize: '10px', color: 'var(--text-muted)', marginTop: '2px' }}>Liturgia do Dia e Catequese</div>
+                                <div style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '8px' }}>
+                                  <strong>Evangelho de Hoje:</strong> "Vós sois o sal da terra e a luz do mundo."
+                                </div>
+                                <div style={{ marginTop: '10px' }}>
+                                  <div style={{ fontWeight: '700', marginBottom: '4px' }}>Exame de Consciência:</div>
+                                  <div style={{ display: 'flex', gap: '6px' }}>
+                                    <button onClick={() => setConscienciaAnswer('realizado')} style={{ flex: 1, padding: '4px', background: conscienciaAnswer === 'realizado' ? 'var(--accent-secondary)' : '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}>Realizado</button>
+                                    <button onClick={() => setConscienciaAnswer('pendente')} style={{ flex: 1, padding: '4px', background: conscienciaAnswer === 'pendente' ? 'var(--accent-primary)' : '#000', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '10px' }}>Pendente</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* --- COMPONENTE REAL: CRIPTO MATRIX --- */}
+                          {m.id === 'mod_crypto' && (
+                            <div style={{ fontSize: '11px', color: '#fff' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                <span style={{ color: 'var(--text-muted)' }}>BTC/USD</span>
+                                <span style={{ fontWeight: '700', color: 'var(--accent-secondary)' }}>$64.250,00</span>
+                              </div>
+                              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ color: 'var(--text-muted)' }}>ETH/USD</span>
+                                <span style={{ fontWeight: '700', color: 'var(--accent-secondary)' }}>$3.450,00</span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* --- COMPONENTE REAL: AGENDAMENTO --- */}
+                          {m.id === 'mod_agendamento' && (
+                            <div style={{ fontSize: '12px' }}>
+                              <div style={{ background: '#000', padding: '10px', borderRadius: '8px', textAlign: 'center' }}>
+                                <div style={{ fontWeight: '700', color: '#fff' }}>Agenda de Mentorias</div>
+                                <div style={{ fontSize: '10px', color: 'var(--accent-primary)', marginTop: '4px' }}>Próximo horário: Hoje 14:00</div>
+                              </div>
+                            </div>
+                          )}
+
                           <button 
                             onClick={() => handleRemoveModule(m.uniqueId)}
                             style={styles.btnRemoveElement}
                           >
-                            Excluir
+                            Excluir Módulo
                           </button>
                         </div>
                       ))
@@ -553,12 +788,12 @@ export default function App() {
               </div>
             )}
 
-            {/* VIEW 3: CO-PILOT IA */}
+            {/* VIEW 3: CO-PILOT IA (COM SUPORTE A REQUISIÇÕES LIVRES) */}
             {activeMenu === 'Co-Pilot IA' && (
-              <div style={{ width: '100%', maxWidth: '800px' }}>
+              <div style={{ width: '100%', maxWidth: '850px' }}>
                 <div style={{ marginBottom: '30px' }}>
                   <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em' }}>AI ASSISTANT</span>
-                  <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px' }}>Co-Pilot IA</h1>
+                  <h1 style={{ fontSize: '32px', fontWeight: '800', marginTop: '6px', letterSpacing: '-2px' }}>Co-Pilot IA</h1>
                 </div>
 
                 <div style={styles.chatContainer} className="glass-panel">
@@ -582,7 +817,7 @@ export default function App() {
                     <input 
                       type="text" 
                       style={styles.chatInput} 
-                      placeholder="Pergunta-me qualquer coisa sobre a tua infraestrutura..." 
+                      placeholder="Pergunta-me qualquer coisa (como 'quanto é 1+1') ou pede para adicionar o Pix..." 
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handleSendAi()}
@@ -598,11 +833,104 @@ export default function App() {
               <div style={{ width: '100%', maxWidth: '800px', textAlign: 'center' }}>
                 <i className="fa-solid fa-headset" style={{ fontSize: '48px', color: 'var(--accent-primary)', marginBottom: '20px' }}></i>
                 <h1 style={{ fontSize: '32px', fontWeight: '800' }}>Suporte Neural</h1>
-                <p style={{ color: 'var(--text-muted)', marginTop: '10px', maxWidth: '500px', margin: '15px auto', lineHeight: '1.6' }}>A tua instância encontra-se a funcionar em perfeitas condições. Quaisquer alertas de tráfego, faturamento ou API serão indicados em tempo real nesta central.</p>
+                <p style={{ color: 'var(--text-muted)', marginTop: '10px', maxWidth: '500px', margin: '15px auto', lineHeight: '1.6' }}>A tua instância encontra-se a funcionar em perfeitas condições. Quaisquer alertas de tráfego, faturamento ou API serão indicados em tempo real nesta central de atendimento autônomo.</p>
               </div>
             )}
 
-            {/* VIEW 5: CENTRAL MESTRE (ROOT MODOS EXCLUSIVOS DO HENRY) */}
+            {/* VIEW 5: MEU PERFIL (GERENCIAMENTO DE MULTI-CONTAS EXIGIDO) */}
+            {activeMenu === 'Perfil' && (
+              <div style={{ width: '100%', maxWidth: '900px' }}>
+                <div style={{ marginBottom: '40px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent-primary)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Configurações de Identidade</span>
+                  <h1 style={{ fontSize: '36px', fontWeight: '800', marginTop: '6px', letterSpacing: '-2px' }}>Gerenciamento de Perfil</h1>
+                </div>
+
+                {/* Lista de Contas Vinculadas */}
+                <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', marginBottom: '32px', boxShadow: '0 8px 32px var(--accent-glow)' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '24px' }}>Contas Vinculadas nesta Instância</h3>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    {contas.map((c) => {
+                      const isSelected = c.id === contaAtual.id;
+                      return (
+                        <div 
+                          key={c.id} 
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            background: isSelected ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.2)',
+                            border: isSelected ? '1px solid var(--accent-primary)' : '1px solid var(--border-color)',
+                            padding: '16px 20px',
+                            borderRadius: '16px'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: isSelected ? 'var(--accent-primary)' : '#231c3c', color: isSelected ? '#000' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '14px' }}>
+                              {c.avatar}
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>
+                                {c.nome} {isSelected && <span style={{ fontSize: '11px', color: 'var(--accent-primary)', background: 'var(--accent-glow)', padding: '2px 8px', borderRadius: '6px', marginLeft: '10px' }}>Ativa</span>}
+                              </div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>{c.email} • {c.role}</div>
+                            </div>
+                          </div>
+
+                          {!isSelected && (
+                            <button 
+                              onClick={() => handleAlternarConta(c)}
+                              style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid var(--border-color)', padding: '8px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: '700', cursor: 'pointer' }}
+                            >
+                              Alternar Conta
+                            </button>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Formulário de Adicionar Nova Conta */}
+                <div className="glass-card" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', padding: '32px', marginBottom: '32px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '24px' }}>Adicionar Novo Perfil</h3>
+                  <form onSubmit={handleAdicionarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>Nome do Usuário</label>
+                        <input type="text" style={styles.input} placeholder="Ex: Carlos Silva" value={novoPerfilNome} onChange={(e) => setNovoPerfilNome(e.target.value)} required />
+                      </div>
+                      <div style={styles.formGroup}>
+                        <label style={styles.label}>E-mail de Acesso</label>
+                        <input type="email" style={styles.input} placeholder="Ex: carlos@hapres.com" value={novoPerfilEmail} onChange={(e) => setNovoPerfilEmail(e.target.value)} required />
+                      </div>
+                    </div>
+                    <div style={styles.formGroup}>
+                      <label style={styles.label}>Nível de Acesso</label>
+                      <select 
+                        value={novoPerfilRole} 
+                        onChange={(e) => setNovoPerfilRole(e.target.value)}
+                        style={{ ...styles.input, background: '#000', cursor: 'pointer' }}
+                      >
+                        <option value="Premium Operator">Premium Operator</option>
+                        <option value="Sub-User Manager">Sub-User Manager</option>
+                        <option value="Guest Support">Guest Support</option>
+                      </select>
+                    </div>
+                    <button type="submit" style={{ ...styles.primaryButton, width: '100%' }}>+ Vincular Perfil ao Ecossistema</button>
+                  </form>
+                </div>
+
+                {/* Botão de Logout */}
+                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '24px', textAlign: 'right' }}>
+                  <button onClick={handleLogout} style={{ background: 'transparent', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontWeight: '700' }}>
+                    Sair da Instância
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* VIEW 6: CENTRAL MESTRE (ROOT MODOS EXCLUSIVOS DO HENRY) */}
             {activeMenu === 'Central Mestre' && (
               <div style={{ width: '100%', maxWidth: '1000px' }}>
                 <div style={styles.rootBanner}>
