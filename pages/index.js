@@ -143,18 +143,18 @@ export default function App() {
   // Escolha Cromática Dinâmica (Chroma Forge)
   const themes = {
     luxury: {
-      '--bg-main': '#030305',
-      '--bg-card': '#09090c',
-      '--border-color': 'rgba(197, 160, 89, 0.08)',
+      '--bg-main': '#030209',
+      '--bg-card': 'rgba(15, 12, 33, 0.65)',
+      '--border-color': 'rgba(197, 160, 89, 0.1)',
       '--accent-primary': '#c5a059', // Ouro Fino
       '--accent-secondary': '#10b981', // Esmeralda
       '--accent-glow': 'rgba(197, 160, 89, 0.04)',
       '--text-main': '#f3f4f6',
-      '--text-muted': '#62616a'
+      '--text-muted': '#6b697e'
     },
     minimalist: {
       '--bg-main': '#020202',
-      '--bg-card': '#0a0a0c',
+      '--bg-card': 'rgba(18, 18, 20, 0.8)',
       '--border-color': 'rgba(255, 255, 255, 0.05)',
       '--accent-primary': '#e5e7eb', // Platina
       '--accent-secondary': '#4b5563',
@@ -164,7 +164,7 @@ export default function App() {
     },
     neon: {
       '--bg-main': '#010004',
-      '--bg-card': '#04010a',
+      '--bg-card': 'rgba(10, 4, 32, 0.75)',
       '--border-color': 'rgba(255, 0, 85, 0.15)',
       '--accent-primary': '#ff0055', // Rosa Cyberpunk
       '--accent-secondary': '#00ffcc', // Ciano Neon
@@ -174,8 +174,8 @@ export default function App() {
     },
     sapphire: {
       '--bg-main': '#00020a',
-      '--bg-card': '#010714',
-      '--border-color': 'rgba(59, 130, 246, 0.12)',
+      '--bg-card': 'rgba(3, 14, 40, 0.7)',
+      '--border-color': 'rgba(59, 130, 246, 0.15)',
       '--accent-primary': '#3b82f6', // Safira Real
       '--accent-secondary': '#f59e0b', // Âmbar
       '--accent-glow': 'rgba(59, 130, 246, 0.03)',
@@ -769,7 +769,7 @@ export default function App() {
                       <div style={{ color: 'rgba(255,255,255,0.1)', textAlign: 'center', pointerEvents: 'none' }}>
                         <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: '48px', marginBottom: '16px', color: 'var(--accent-primary)' }}></i>
                         <h3 style={{ fontSize: '18px', fontWeight: '700' }}>Malha de Criação Vazia</h3>
-                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Arrasta os elementos do catálogo lateral para aqui</p>
+                        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '6px' }}>Arrasta os elements do catálogo lateral para aqui</p>
                       </div>
                     ) : (
                       modulosInjetados.map(m => (
